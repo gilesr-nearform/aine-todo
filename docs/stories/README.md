@@ -17,7 +17,7 @@
 | Epic | File | Stories | Status |
 |---|---|---|---|
 | 01 — Foundation | `01-foundation.md` | 4 | Required |
-| 02 — Core Actions | `02-core-actions.md` | 4 | Required |
+| 02 — Core Actions | `02-core-actions.md` | 3 | Required |
 | 03 — Delete & Undo | `03-delete-and-undo.md` | 4 | Required |
 | 04 — UI States | `04-ui-states.md` | 4 | Required |
 | 05 — Polish | `05-polish.md` | 4 | Required |
