@@ -127,3 +127,60 @@
   background-color: var(--gieds-color-neutral-white);
 }
 
+/*
+ * Gov.ie components with hardcoded `rgb(255 255 255)` backgrounds.
+ *
+ * A few component CSS rules in @ogcio/design-system-react bake `bg-white`
+ * directly (rather than going through a surface token), so token inversion
+ * doesn't reach them. We flip those specific surfaces under
+ * [data-theme="govie-dark"] only. Modal popup, modal close-button positioner,
+ * and the mobile drawer surface fall into this bucket.
+ */
+[data-theme='govie-dark'] .gi-modal-container-center,
+[data-theme='govie-dark'] .gi-modal-container-control,
+[data-theme='govie-dark'] .gi-header-menu-container,
+[data-theme='govie-dark'] .gi-header-menu-container > ul {
+  background-color: var(--gieds-color-surface-system-neutral-default);
+}
+
+/*
+ * Form controls.
+ *
+ * Gov.ie's `.gi-input-text` doesn't set a background, so without intervention
+ * the input falls back to the browser's UA default (usually white) on a dark
+ * page. `color-scheme: dark` helps some browsers, but isn't a reliable design
+ * contract. Set an explicit elevated dark surface so the input reads as a
+ * field instead of a punched-out white box, and pin the text colour to the
+ * semantic neutral default so it follows the theme.
+ *
+ * `textarea` is targeted directly because gov.ie's TextArea wraps a native
+ * textarea without applying `.gi-input-text` to it.
+ */
+[data-theme='govie-dark'] .gi-input-text,
+[data-theme='govie-dark'] textarea {
+  background-color: var(--gieds-color-surface-system-neutral-layer1);
+  color: var(--gieds-color-text-system-neutral-default);
+}
+
+/*
+ * Secondary + flat (outline / text-only) buttons.
+ *
+ * Gov.ie maps both `text-tone-primary-outline-*` and `text-tone-primary-flat-*`
+ * to `--gieds-color-primary-800` (emerald-800, #004D44) on a transparent
+ * background. That's readable on a light page but disappears against the dark
+ * emerald-900 page. Lift the colour to primary-400 / primary-300 in dark mode
+ * so Cancel / Save / Clear / IconButton actions stay visible without losing
+ * the gov.ie green identity. The hover-fill drops to a subtle elevated
+ * emerald so it doesn't flash bright white.
+ */
+[data-theme='govie-dark'] {
+  --gieds-color-text-tone-primary-outline-default: var(--gieds-color-primary-400);
+  --gieds-color-text-tone-primary-outline-hover: var(--gieds-color-primary-300);
+  --gieds-color-text-tone-primary-flat-default: var(--gieds-color-primary-400);
+  --gieds-color-text-tone-primary-flat-hover: var(--gieds-color-primary-300);
+  --gieds-color-border-tone-primary-outline-default: var(--gieds-color-primary-400);
+  --gieds-color-border-tone-primary-outline-hover: var(--gieds-color-primary-300);
+  --gieds-color-surface-tone-primary-outline-hover: var(--gieds-color-primary-800);
+}
+
+
