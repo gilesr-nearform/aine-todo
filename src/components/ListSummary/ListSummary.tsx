@@ -50,7 +50,7 @@ export function ListSummary({
           size="sm"
           disabled={completed === 0}
           onClick={() => setClearOpen(true)}
-          className="dark:!text-emerald-400"
+          className="dark:!text-gray-200"
         >
           {t('summary.clear')}
         </Button>
@@ -66,7 +66,7 @@ export function ListSummary({
                 payload: { value: !showCompleted },
               })
             }
-            className="dark:!border-emerald-400 dark:!text-emerald-400"
+            className="dark:!border-gray-200 dark:!text-gray-200"
           >
             <Icon
               icon={showCompleted ? 'visibility_off' : 'visibility'}
