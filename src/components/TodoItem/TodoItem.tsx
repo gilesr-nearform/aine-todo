@@ -30,7 +30,7 @@ export function TodoItem({ todo }: TodoItemProps) {
 
   return (
     <li
-      className="group flex items-start gap-3 border-b border-gray-200 py-3 last:border-b-0"
+      className="todo-row-enter group flex items-start gap-3 border-b border-gray-200 py-3 last:border-b-0"
       onKeyDown={handleKeyDown}
     >
       <InputCheckbox
@@ -45,8 +45,8 @@ export function TodoItem({ todo }: TodoItemProps) {
           htmlFor={checkboxId}
           className={
             todo.completed
-              ? 'cursor-pointer text-base text-gray-500 line-through'
-              : 'cursor-pointer text-base text-gray-900'
+              ? 'cursor-pointer text-base text-gray-500 line-through transition-colors duration-200 motion-reduce:transition-none'
+              : 'cursor-pointer text-base text-gray-900 transition-colors duration-200 motion-reduce:transition-none'
           }
         >
           {todo.description}

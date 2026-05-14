@@ -26,3 +26,26 @@
     width: 0%;
   }
 }
+
+@keyframes todo-row-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer components {
+  .todo-row-enter {
+    animation: todo-row-enter 180ms ease-out both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .todo-row-enter {
+      animation: none;
+    }
+  }
+}
