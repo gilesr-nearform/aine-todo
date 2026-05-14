@@ -1,4 +1,5 @@
-@import '@ogcio/theme-govie/theme.css';
+@import '@ogcio/theme-govie/light.css';
+@import '@ogcio/theme-govie/dark.css';
 @import '@ogcio/design-system-react/styles.css';
 
 @tailwind base;

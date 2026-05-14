@@ -1,6 +1,7 @@
 import {
   HeaderLogo,
   HeaderNext,
+  HeaderPrimaryMenu,
   HeaderTitle,
 } from '@ogcio/design-system-react';
 import { LogoWhite } from '@ogcio/design-system-react/logos';
@@ -8,6 +9,7 @@ import { LogoWhite } from '@ogcio/design-system-react/logos';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { useT } from '../../i18n/I18nContext';
 import { MobileNav } from '../Sidebar/MobileNav';
+import { ThemeToggle } from './ThemeToggle';
 
 export function Header() {
   const isMobile = useMediaQuery('(max-width: 767px)');
@@ -22,6 +24,9 @@ export function Header() {
         </div>
       </HeaderLogo>
       <HeaderTitle>{t('header.title')}</HeaderTitle>
+      <HeaderPrimaryMenu aria-label={t('header.siteAria')}>
+        <ThemeToggle />
+      </HeaderPrimaryMenu>
     </HeaderNext>
   );
 }

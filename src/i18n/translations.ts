@@ -32,6 +32,8 @@ const en = {
   // Site header
   'header.siteAria': 'UX ToDo site header',
   'header.title': 'UX ToDo',
+  'header.themeToLight': 'Switch to light mode',
+  'header.themeToDark': 'Switch to dark mode',
 
   // Sidebar
   'sidebar.aria': 'Lists',
@@ -123,6 +125,8 @@ const ga: Record<Key, string> = {
   // Site header
   'header.siteAria': 'Ceanntásc shuíomh UX ToDo',
   'header.title': 'UX ToDo',
+  'header.themeToLight': 'Athraigh go mód éadrom',
+  'header.themeToDark': 'Athraigh go mód dorcha',
 
   // Sidebar
   'sidebar.aria': 'Liostaí',
