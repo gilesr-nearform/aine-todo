@@ -52,7 +52,7 @@ export function Header() {
         <DrawerWrapper
           isOpen={navOpen}
           onClose={closeNav}
-          position="left"
+          position="right"
           closeButtonLabel={t('sidebar.closeMenu')}
         >
           <DrawerBody>
