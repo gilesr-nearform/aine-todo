@@ -227,5 +227,17 @@ export function todosReducer(state: AppState, action: Action): AppState {
 
     case 'SET_ACTIVE_LIST':
       return { ...state, activeListId: action.payload.id };
+
+    case 'CLEAR_COMPLETED': {
+      const { listId } = action.payload;
+      return {
+        ...state,
+        todos: state.todos.filter((t) => {
+          if (!t.completed) return true;
+          if (listId === null) return false;
+          return t.listId !== listId;
+        }),
+      };
+    }
   }
 }

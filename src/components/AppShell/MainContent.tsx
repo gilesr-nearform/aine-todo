@@ -1,6 +1,5 @@
 import { EmptyState } from '../EmptyState/EmptyState';
 import { ErrorState } from '../ErrorState/ErrorState';
-import { ListControls } from '../ListControls/ListControls';
 import { LoadingState } from '../LoadingState/LoadingState';
 import { TodoList } from '../TodoList/TodoList';
 import { useTodos } from '../../state/TodosContext';
@@ -12,12 +11,7 @@ function selectBody(
   if (status === 'loading' || status === 'idle') return <LoadingState />;
   if (status === 'error') return <ErrorState />;
   if (todoCount === 0) return <EmptyState />;
-  return (
-    <>
-      <ListControls />
-      <TodoList />
-    </>
-  );
+  return <TodoList />;
 }
 
 export function MainContent() {

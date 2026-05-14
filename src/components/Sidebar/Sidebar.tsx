@@ -10,6 +10,7 @@ import {
 import {
   useEffect,
   useId,
+  useMemo,
   useRef,
   useState,
   type FormEvent,
@@ -30,6 +31,14 @@ export function Sidebar({ onNavigate }: SidebarProps) {
   const [renamingId, setRenamingId] = useState<ListId | null>(null);
   const newListInputId = useId();
   const formRef = useRef<HTMLFormElement>(null);
+
+  const counts = useMemo(() => {
+    const byList = new Map<ListId, number>();
+    for (const todo of state.todos) {
+      byList.set(todo.listId, (byList.get(todo.listId) ?? 0) + 1);
+    }
+    return { all: state.todos.length, byList };
+  }, [state.todos]);
 
   if (state.status !== 'success') return null;
 
@@ -68,17 +77,24 @@ export function Sidebar({ onNavigate }: SidebarProps) {
         key={selectedValue}
       >
         <SideNavHeading as="h2">Smart</SideNavHeading>
-        <SideNavItem value={SMART_ALL_VALUE} label="All tasks" icon="apps" />
+        <div className="relative">
+          <SideNavItem value={SMART_ALL_VALUE} label="All tasks" icon="apps" />
+          {counts.all > 0 ? <CountBadge count={counts.all} /> : null}
+        </div>
         <SideNavHeading as="h2">My lists</SideNavHeading>
-        {state.lists.map((list) =>
-          renamingId === list.id ? (
-            <RenameRow
-              key={list.id}
-              list={list}
-              onCancel={() => setRenamingId(null)}
-              onSaved={() => setRenamingId(null)}
-            />
-          ) : (
+        {state.lists.map((list) => {
+          const count = counts.byList.get(list.id) ?? 0;
+          if (renamingId === list.id) {
+            return (
+              <RenameRow
+                key={list.id}
+                list={list}
+                onCancel={() => setRenamingId(null)}
+                onSaved={() => setRenamingId(null)}
+              />
+            );
+          }
+          return (
             <div
               key={list.id}
               className="group/list relative flex items-center gap-1"
@@ -86,6 +102,12 @@ export function Sidebar({ onNavigate }: SidebarProps) {
               <div className="flex-1">
                 <SideNavItem value={list.id} label={list.name} />
               </div>
+              {count > 0 ? (
+                <CountBadge
+                  count={count}
+                  className="sm:group-hover/list:opacity-0 sm:group-focus-within/list:opacity-0"
+                />
+              ) : null}
               <div className="absolute right-1 flex items-center gap-0.5 opacity-100 transition-opacity sm:opacity-0 sm:group-hover/list:opacity-100 sm:group-focus-within/list:opacity-100">
                 <IconButton
                   type="button"
@@ -107,8 +129,8 @@ export function Sidebar({ onNavigate }: SidebarProps) {
                 </IconButton>
               </div>
             </div>
-          ),
-        )}
+          );
+        })}
       </SideNav>
       <form
         ref={formRef}
@@ -137,6 +159,22 @@ export function Sidebar({ onNavigate }: SidebarProps) {
         </Button>
       </form>
     </nav>
+  );
+}
+
+interface CountBadgeProps {
+  count: number;
+  className?: string;
+}
+
+function CountBadge({ count, className }: CountBadgeProps) {
+  return (
+    <span
+      aria-hidden
+      className={`pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium tabular-nums text-gray-500 transition-opacity ${className ?? ''}`.trim()}
+    >
+      {count}
+    </span>
   );
 }
 

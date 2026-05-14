@@ -6,6 +6,9 @@ import {
   type ListId,
   type Todo,
 } from '../../state/types';
+import { countCompleted } from '../../utils/todoCounts';
+import { ListControls } from '../ListControls/ListControls';
+import { ListSummary } from '../ListSummary/ListSummary';
 import { TodoItem } from '../TodoItem/TodoItem';
 
 function filtersAreDefault(filters: Filters): boolean {
@@ -50,12 +53,20 @@ export function TodoList() {
     ? inList.filter((t) => matchesFilters(t, state.filters))
     : inList;
   const listName = activeListName(state.activeListId, state.lists);
+  const completed = countCompleted(inList);
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-3">
       <Heading as="h2" size="md">
         {listName}
       </Heading>
+      <ListSummary
+        total={inList.length}
+        completed={completed}
+        listId={state.activeListId}
+        listName={listName}
+      />
+      <ListControls />
       {inList.length === 0 ? (
         <p className="py-6 text-base text-gray-700">
           {state.activeListId === null

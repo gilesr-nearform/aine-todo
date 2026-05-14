@@ -190,6 +190,7 @@ The reducer handles exactly these actions. Adding a new one is a decision-log en
 | `RENAME_LIST` | `{ id: ListId, name: string }` | Trims and updates the list's name. No-op if name is empty. Added in Epic 08. |
 | `DELETE_LIST` | `{ id: ListId }` | Removes the list and every todo belonging to it. If the deleted list was active, falls back to `activeListId: null`. Added in Epic 08. |
 | `SET_ACTIVE_LIST` | `{ id: ListId \| null }` | Sets the active list. `null` selects the "All tasks" smart list. Added in Epic 08. |
+| `CLEAR_COMPLETED` | `{ listId: ListId \| null }` | Removes every completed todo in the given list. `null` clears completed across all lists. No undo (irreversible bulk delete behind a `confirm()`). Added in Epic 09. |
 
 ### 4.3 Why a reducer (vs. plain useState)
 

@@ -71,7 +71,8 @@ export type Action =
   | { type: 'CREATE_LIST'; payload: { name: string } }
   | { type: 'RENAME_LIST'; payload: { id: ListId; name: string } }
   | { type: 'DELETE_LIST'; payload: { id: ListId } }
-  | { type: 'SET_ACTIVE_LIST'; payload: { id: ListId | null } };
+  | { type: 'SET_ACTIVE_LIST'; payload: { id: ListId | null } }
+  | { type: 'CLEAR_COMPLETED'; payload: { listId: ListId | null } };
 
 export const defaultFilters: Filters = {
   search: '',

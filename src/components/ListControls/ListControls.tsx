@@ -1,4 +1,4 @@
-import { Button, Icon, InputText } from '@ogcio/design-system-react';
+import { Button, InputText } from '@ogcio/design-system-react';
 import { useId } from 'react';
 import { useTodos } from '../../state/TodosContext';
 import { FlagIcon } from '../Icons/FlagIcon';
@@ -9,7 +9,7 @@ export function ListControls() {
 
   if (state.status !== 'success' || state.todos.length === 0) return null;
 
-  const { search, flaggedOnly, showCompleted } = state.filters;
+  const { search, flaggedOnly } = state.filters;
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-3 pb-3">
@@ -46,27 +46,6 @@ export function ListControls() {
         >
           <FlagIcon filled={flaggedOnly} />
           <span className="ml-1">Flagged only</span>
-        </Button>
-        <Button
-          type="button"
-          variant={showCompleted ? 'secondary' : 'primary'}
-          size="sm"
-          aria-pressed={!showCompleted}
-          onClick={() =>
-            dispatch({
-              type: 'SET_SHOW_COMPLETED',
-              payload: { value: !showCompleted },
-            })
-          }
-        >
-          <Icon
-            icon={showCompleted ? 'visibility_off' : 'visibility'}
-            size="sm"
-            ariaHidden
-          />
-          <span className="ml-1">
-            {showCompleted ? 'Hide completed' : 'Show completed'}
-          </span>
         </Button>
       </div>
     </div>
