@@ -30,8 +30,8 @@ const en = {
   'branding.en': 'Government of Ireland',
 
   // Site header
-  'header.siteAria': 'UX ToDo site header',
-  'header.title': 'UX ToDo',
+  'header.siteAria': 'UX To-do list site header',
+  'header.title': 'UX To-do list',
   'header.themeToLight': 'Switch to light mode',
   'header.themeToDark': 'Switch to dark mode',
 
@@ -122,8 +122,8 @@ const ga: Record<Key, string> = {
   'branding.en': 'Government of Ireland',
 
   // Site header
-  'header.siteAria': 'Ceanntásc shuíomh UX ToDo',
-  'header.title': 'UX ToDo',
+  'header.siteAria': 'Ceanntásc shuíomh UX To-do list',
+  'header.title': 'UX To-do list',
   'header.themeToLight': 'Athraigh go mód éadrom',
   'header.themeToDark': 'Athraigh go mód dorcha',
 
