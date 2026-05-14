@@ -1,4 +1,5 @@
 import { useTodos } from '../../state/TodosContext';
+import { TodoItem } from '../TodoItem/TodoItem';
 
 export function TodoList() {
   const { state } = useTodos();
@@ -6,8 +7,10 @@ export function TodoList() {
   if (state.todos.length === 0) return null;
 
   return (
-    <div className="flex h-full w-full items-center justify-center text-gray-900">
-      Populated
-    </div>
+    <ul className="mx-auto w-full max-w-2xl list-none p-0">
+      {state.todos.map((todo) => (
+        <TodoItem key={todo.id} todo={todo} />
+      ))}
+    </ul>
   );
 }
