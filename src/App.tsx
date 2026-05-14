@@ -1,5 +1,7 @@
+import { TodosProvider } from './state/TodosContext';
+
 function App() {
-  return null;
+  return <TodosProvider>{null}</TodosProvider>;
 }
 
 export default App;
