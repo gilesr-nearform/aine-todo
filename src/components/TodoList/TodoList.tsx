@@ -63,7 +63,6 @@ export function TodoList() {
   const searchActive = state.filters.search.trim().length > 0;
   const completionFilterActive =
     !isCompletedSmartView && !state.filters.showCompleted;
-  const filtersActive = searchActive || completionFilterActive;
 
   const visibleTodos = inScopeTodos.filter((tt) => {
     if (!matchesSearch(tt, state.filters)) return false;
@@ -162,18 +161,22 @@ export function TodoList() {
         </div>
       ) : (
         <ul className="list-none p-0">
-          {visibleTodos.map((todo) => {
-            const scopeIndex = inScopeTodos.findIndex((tt) => tt.id === todo.id);
-            return (
-              <TodoItem
-                key={todo.id}
-                todo={todo}
-                index={scopeIndex}
-                total={inScopeTodos.length}
-                reorderDisabled={filtersActive || isCompletedSmartView}
-              />
-            );
-          })}
+          {visibleTodos.map((todo, visibleIndex) => (
+            <TodoItem
+              key={todo.id}
+              todo={todo}
+              // Index against the visible subset (not in-scope), so the
+              // up/down buttons disable on the visible edges of the list the
+              // user actually sees — important now that completed items are
+              // hidden by default (Epic 11).
+              index={visibleIndex}
+              total={visibleTodos.length}
+              // Reorder stays sensible while completion is hiding items —
+              // the reducer skips hidden neighbours. Search is the only
+              // filter that genuinely scrambles the order space.
+              reorderDisabled={searchActive || isCompletedSmartView}
+            />
+          ))}
         </ul>
       )}
       {activeList !== undefined ? (

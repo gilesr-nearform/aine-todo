@@ -123,10 +123,23 @@ export function todosReducer(state: AppState, action: Action): AppState {
       const current = state.todos[index];
       if (!current) return state;
       const step = action.payload.direction === 'up' ? -1 : 1;
+      // When completed items are hidden (Epic 11 default), the user sees an
+      // intermixed list with the completed rows omitted. A reorder press
+      // should swap with the next *visible* same-list neighbour — otherwise
+      // tapping the up arrow would silently swap with a hidden completed
+      // item and produce no visual change. Skip both other-list rows and
+      // hidden-completed rows.
+      const skipHiddenCompleted = !state.filters.showCompleted;
       let swapWith = index + step;
       while (swapWith >= 0 && swapWith < state.todos.length) {
         const candidate = state.todos[swapWith];
-        if (candidate && candidate.listId === current.listId) break;
+        if (
+          candidate &&
+          candidate.listId === current.listId &&
+          !(skipHiddenCompleted && candidate.completed)
+        ) {
+          break;
+        }
         swapWith += step;
       }
       if (swapWith < 0 || swapWith >= state.todos.length) return state;
