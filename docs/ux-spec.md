@@ -54,7 +54,8 @@ For each component in `component-inventory.md`, we identify whether to use a gov
 
 | Component | Source | Notes |
 |---|---|---|
-| `<App>`, `<AppShell>`, `<Header>` | Custom (composition) | App-specific layout; uses gov.ie spacing / typography tokens |
+| `<App>`, `<AppShell>` | Custom (composition) | App-specific layout; uses gov.ie spacing / typography tokens |
+| `<Header>` | **Gov.ie `HeaderNext` + `HeaderTitle`** | The gov.ie default (green) service header with the app title. See `brief.md` decision log on the branding consideration (prototype, not a real gov.ie service). |
 | `<TodoInput>` | **Gov.ie `Input`** | Form input — design system covers this |
 | `<TodoSubmitButton>` | **Gov.ie `Button`** (primary variant) | |
 | `Checkbox` (for todo completion) | **Gov.ie `Checkbox`** if available; else compose `<input type="checkbox">` with gov.ie token styling | Verify in Storybook day 1 |
