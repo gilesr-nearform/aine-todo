@@ -15,29 +15,26 @@
 
 ---
 
-## 10.1 — Bilingual branding bar
+## 10.1 — Two-bar gov.ie header pattern
 
-As a citizen-facing service, I want the gov.ie identity to appear above the site header, so the app reads as part of the Government of Ireland's services rather than a generic todo app.
+As a citizen-facing service, I want the standard gov.ie two-bar header — a thin utility strip with the language switcher above the main green masthead carrying the bilingual identity — so the app matches the pattern used across `gov.ie` and OGCIO prototypes (reference: `dashboard-prototype/index.html`).
 
 **AC:**
 
-- A new `<GovieBranding>` component renders above `<HeaderNext>` in the app shell.
-- The bar uses a light gov.ie green background (sage / pale tint, distinct from the `HeaderNext` default dark green below it).
-- Left side: the `LogoHarpBlack` harp from `@ogcio/design-system-react/logos` (the light bar takes the black variant; the dark bar takes the white), followed by stacked bilingual text:
-  ```
-  Rialtas na hÉireann
-  Government of Ireland
-  ```
-- Right side: a small `<Button>` showing the **other** language's name — when active is English it reads `Gaeilge`, when active is Gaeilge it reads `English`. Clicking switches the language.
-- Accessible name on the button is the action: `Switch to Gaeilge` / `Switch to English` (the visible label is just the language name to match gov.ie's pattern).
-- Bar collapses gracefully on mobile (stacks if width is tight; otherwise condenses).
+- A new `<GovieBranding>` component renders a **thin utility strip** above `<HeaderNext>`.
+- The strip uses gov.ie *primary-subtle* (`#006658` — a slightly lighter shade of the main green, not a pale tint), with white text.
+- Strip contents are right-aligned: a single language toggle styled as an underlined link/button. When active is English it reads `Gaeilge`, when active is Gaeilge it reads `English`. Clicking switches the language.
+- Accessible name on the toggle is the action (`Switch to Gaeilge` / `Athraigh go Gaeilge`); the visible label is just the destination language name.
+- The strip hides on very narrow screens (≤540px in the gov.ie reference); we keep it visible for now since the toggle is the only control.
+- The masthead below uses gov.ie's existing `HeaderNext` (default green variant) and now renders `LogoWhite` (the full bilingual harp + "Rialtas na hÉireann / Government of Ireland" SVG) instead of `LogoHarpWhite` (harp-only).
 
-**Refs:** `brief.md` §9; `ux-spec.md` §3.
+**Refs:** `brief.md` §9; `ux-spec.md` §3; `../../ogcio/dashboard-prototype/index.html` (canonical pattern reference).
 
 **Design decisions:**
 
-- **Both languages always visible in the bilingual identity.** Even when active language is English, the Gaeilge "Rialtas na hÉireann" line still shows. This matches gov.ie's house style — the identity is bilingual regardless of UI language.
-- **Toggle shows the destination language, not the current.** Common pattern for language switchers — what you click to get is what's labelled.
+- **Bilingual identity lives in the SVG, not in DOM text.** `LogoWhite` from `@ogcio/design-system-react/logos` is the equivalent of `assets/logos/gov-white.svg` in the reference: harp + "Rialtas na hÉireann" + "Government of Ireland" baked into one accessible image with a localised `label` prop. Recreating the text as separate DOM nodes (as the previous attempt did) duplicates what the SVG already provides and risks drifting from the official asset.
+- **Two shades of the same green, not a light/dark contrast.** The reference uses `#006658` for the strip and `#004d44` (gov.ie primary, the HeaderNext default) for the masthead. The first attempt used Tailwind `bg-green-100` which read as a separate pale colour rather than a tonal step inside the gov.ie palette.
+- **Toggle shows the destination language, not the current.** Standard language-switcher pattern.
 
 ---
 
