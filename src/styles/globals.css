@@ -70,10 +70,16 @@
  * are deliberately untouched.
  */
 [data-theme='govie-dark'] {
-  --gieds-color-neutral-white: #0b1220;
-  --gieds-color-base-white: #0b1220;
+  /*
+   * Page surface uses gov.ie emerald-900 (#003630) so the dark UI keeps a
+   * hint of the gov.ie identity rather than reading as neutral slate.
+   * Everything else in the inverted gray scale stays neutral so hover
+   * states, borders and dividers don't pull the whole UI green.
+   */
+  --gieds-color-neutral-white: var(--gieds-color-emerald-900);
+  --gieds-color-base-white: var(--gieds-color-emerald-900);
 
-  --gieds-color-gray-50: #0b1220;
+  --gieds-color-gray-50: var(--gieds-color-emerald-900);
   --gieds-color-gray-100: #111827;
   --gieds-color-gray-200: #1f2937;
   --gieds-color-gray-300: #374151;
