@@ -1,9 +1,17 @@
 export type TodoId = string;
+export type ListId = string;
 
 export type LoadStatus = 'idle' | 'loading' | 'success' | 'error';
 
+export interface List {
+  id: ListId;
+  name: string;
+  createdAt: Date;
+}
+
 export interface Todo {
   id: TodoId;
+  listId: ListId;
   description: string;
   completed: boolean;
   createdAt: Date;
@@ -25,7 +33,9 @@ export interface Filters {
 
 export interface AppState {
   status: LoadStatus;
+  lists: List[];
   todos: Todo[];
+  activeListId: ListId | null;
   recentlyDeleted: DeletedRecord[];
   filters: Filters;
   editingId: TodoId | null;
@@ -33,7 +43,10 @@ export interface AppState {
 
 export type Action =
   | { type: 'INIT_LOAD_START' }
-  | { type: 'INIT_LOAD_SUCCESS'; payload: Todo[] }
+  | {
+      type: 'INIT_LOAD_SUCCESS';
+      payload: { lists: List[]; todos: Todo[]; activeListId: ListId | null };
+    }
   | { type: 'INIT_LOAD_FAILURE' }
   | { type: 'INIT_LOAD_RETRY' }
   | { type: 'CREATE_TODO'; payload: { description: string } }
@@ -54,7 +67,11 @@ export type Action =
   | { type: 'SET_FLAGGED_ONLY'; payload: { value: boolean } }
   | { type: 'SET_SHOW_COMPLETED'; payload: { value: boolean } }
   | { type: 'START_EDIT'; payload: { id: TodoId } }
-  | { type: 'CANCEL_EDIT' };
+  | { type: 'CANCEL_EDIT' }
+  | { type: 'CREATE_LIST'; payload: { name: string } }
+  | { type: 'RENAME_LIST'; payload: { id: ListId; name: string } }
+  | { type: 'DELETE_LIST'; payload: { id: ListId } }
+  | { type: 'SET_ACTIVE_LIST'; payload: { id: ListId | null } };
 
 export const defaultFilters: Filters = {
   search: '',
@@ -64,7 +81,9 @@ export const defaultFilters: Filters = {
 
 export const initialState: AppState = {
   status: 'idle',
+  lists: [],
   todos: [],
+  activeListId: null,
   recentlyDeleted: [],
   filters: defaultFilters,
   editingId: null,

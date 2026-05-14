@@ -186,6 +186,10 @@ The reducer handles exactly these actions. Adding a new one is a decision-log en
 | `SET_SEARCH` | `{ value: string }` | Updates `filters.search`. Not persisted. Added in Epic 07. |
 | `SET_FLAGGED_ONLY` | `{ value: boolean }` | Updates `filters.flaggedOnly`. Not persisted. Added in Epic 07. |
 | `SET_SHOW_COMPLETED` | `{ value: boolean }` | Updates `filters.showCompleted`. Not persisted. Added in Epic 07. |
+| `CREATE_LIST` | `{ name: string }` | Creates a new `List` with the trimmed name and a fresh UUID, appends to `lists`, sets `activeListId` to the new list. No-op if name is empty. Added in Epic 08. |
+| `RENAME_LIST` | `{ id: ListId, name: string }` | Trims and updates the list's name. No-op if name is empty. Added in Epic 08. |
+| `DELETE_LIST` | `{ id: ListId }` | Removes the list and every todo belonging to it. If the deleted list was active, falls back to `activeListId: null`. Added in Epic 08. |
+| `SET_ACTIVE_LIST` | `{ id: ListId \| null }` | Sets the active list. `null` selects the "All tasks" smart list. Added in Epic 08. |
 
 ### 4.3 Why a reducer (vs. plain useState)
 

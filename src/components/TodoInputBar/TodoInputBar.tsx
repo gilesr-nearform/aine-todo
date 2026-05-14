@@ -12,6 +12,13 @@ export function TodoInputBar() {
   const trimmed = draft.trim();
   const canSubmit = ready && trimmed.length > 0;
 
+  const targetList =
+    state.activeListId !== null
+      ? state.lists.find((l) => l.id === state.activeListId)
+      : state.lists[0];
+  const placeholder =
+    targetList !== undefined ? `Add a task to ${targetList.name}` : 'Add a task';
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!canSubmit) return;
@@ -35,7 +42,7 @@ export function TodoInputBar() {
           ref={inputRef}
           name="todo-input"
           type="text"
-          placeholder="Add a task"
+          placeholder={placeholder}
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
           disabled={!ready}

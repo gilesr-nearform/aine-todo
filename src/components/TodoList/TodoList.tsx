@@ -1,6 +1,11 @@
-import { Button } from '@ogcio/design-system-react';
+import { Button, Heading } from '@ogcio/design-system-react';
 import { useTodos } from '../../state/TodosContext';
-import { defaultFilters, type Filters, type Todo } from '../../state/types';
+import {
+  defaultFilters,
+  type Filters,
+  type ListId,
+  type Todo,
+} from '../../state/types';
 import { TodoItem } from '../TodoItem/TodoItem';
 
 function filtersAreDefault(filters: Filters): boolean {
@@ -22,58 +27,81 @@ function matchesFilters(todo: Todo, filters: Filters): boolean {
   return true;
 }
 
+function matchesList(todo: Todo, activeListId: ListId | null): boolean {
+  if (activeListId === null) return true;
+  return todo.listId === activeListId;
+}
+
+function activeListName(
+  activeListId: ListId | null,
+  lists: ReturnType<typeof useTodos>['state']['lists'],
+): string {
+  if (activeListId === null) return 'All tasks';
+  const found = lists.find((l) => l.id === activeListId);
+  return found?.name ?? 'All tasks';
+}
+
 export function TodoList() {
   const { state, dispatch } = useTodos();
 
-  if (state.todos.length === 0) return null;
-
   const filtersActive = !filtersAreDefault(state.filters);
+  const inList = state.todos.filter((t) => matchesList(t, state.activeListId));
   const visibleTodos = filtersActive
-    ? state.todos.filter((todo) => matchesFilters(todo, state.filters))
-    : state.todos;
-
-  if (visibleTodos.length === 0) {
-    return (
-      <div className="mx-auto flex w-full max-w-2xl flex-col items-center gap-3 py-8 text-center">
-        <p className="text-base text-gray-700">
-          No tasks match your filters.
-        </p>
-        <Button
-          type="button"
-          variant="secondary"
-          size="sm"
-          onClick={() => {
-            dispatch({ type: 'SET_SEARCH', payload: { value: '' } });
-            dispatch({
-              type: 'SET_FLAGGED_ONLY',
-              payload: { value: false },
-            });
-            dispatch({
-              type: 'SET_SHOW_COMPLETED',
-              payload: { value: true },
-            });
-          }}
-        >
-          Reset filters
-        </Button>
-      </div>
-    );
-  }
+    ? inList.filter((t) => matchesFilters(t, state.filters))
+    : inList;
+  const listName = activeListName(state.activeListId, state.lists);
 
   return (
-    <ul className="mx-auto w-full max-w-2xl list-none p-0">
-      {visibleTodos.map((todo) => {
-        const fullIndex = state.todos.findIndex((t) => t.id === todo.id);
-        return (
-          <TodoItem
-            key={todo.id}
-            todo={todo}
-            index={fullIndex}
-            total={state.todos.length}
-            reorderDisabled={filtersActive}
-          />
-        );
-      })}
-    </ul>
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-3">
+      <Heading as="h2" size="md">
+        {listName}
+      </Heading>
+      {inList.length === 0 ? (
+        <p className="py-6 text-base text-gray-700">
+          {state.activeListId === null
+            ? 'No tasks yet. Add one below.'
+            : `No tasks in ${listName} yet. Add one below.`}
+        </p>
+      ) : visibleTodos.length === 0 ? (
+        <div className="flex flex-col items-center gap-3 py-8 text-center">
+          <p className="text-base text-gray-700">
+            No tasks match your filters.
+          </p>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={() => {
+              dispatch({ type: 'SET_SEARCH', payload: { value: '' } });
+              dispatch({
+                type: 'SET_FLAGGED_ONLY',
+                payload: { value: false },
+              });
+              dispatch({
+                type: 'SET_SHOW_COMPLETED',
+                payload: { value: true },
+              });
+            }}
+          >
+            Reset filters
+          </Button>
+        </div>
+      ) : (
+        <ul className="list-none p-0">
+          {visibleTodos.map((todo) => {
+            const inListIndex = inList.findIndex((t) => t.id === todo.id);
+            return (
+              <TodoItem
+                key={todo.id}
+                todo={todo}
+                index={inListIndex}
+                total={inList.length}
+                reorderDisabled={filtersActive}
+              />
+            );
+          })}
+        </ul>
+      )}
+    </div>
   );
 }

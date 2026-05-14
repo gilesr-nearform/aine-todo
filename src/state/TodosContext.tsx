@@ -10,7 +10,7 @@ import {
   type Dispatch,
   type ReactNode,
 } from 'react';
-import { loadInitialTodos } from '../mocks/initialLoad';
+import { loadInitialState } from '../mocks/initialLoad';
 import { writeToStorage } from './storage';
 import { todosReducer } from './todosReducer';
 import { initialState, type Action, type AppState } from './types';
@@ -32,9 +32,9 @@ export function TodosProvider({ children }: { children: ReactNode }) {
     if (inFlightRef.current) return;
     inFlightRef.current = true;
     dispatch({ type: isRetry ? 'INIT_LOAD_RETRY' : 'INIT_LOAD_START' });
-    loadInitialTodos()
-      .then((todos) => {
-        dispatch({ type: 'INIT_LOAD_SUCCESS', payload: todos });
+    loadInitialState()
+      .then((loaded) => {
+        dispatch({ type: 'INIT_LOAD_SUCCESS', payload: loaded });
       })
       .catch(() => {
         dispatch({ type: 'INIT_LOAD_FAILURE' });
@@ -52,8 +52,12 @@ export function TodosProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (state.status !== 'success') return;
-    writeToStorage(state.todos);
-  }, [state.status, state.todos]);
+    writeToStorage({
+      lists: state.lists,
+      todos: state.todos,
+      activeListId: state.activeListId,
+    });
+  }, [state.status, state.lists, state.todos, state.activeListId]);
 
   const retry = useCallback(() => runLoad(true), [runLoad]);
 
