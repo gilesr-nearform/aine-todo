@@ -9,7 +9,6 @@ function newTodo(description: string, listId: ListId): Todo {
     description: description.trim(),
     completed: false,
     createdAt: new Date(),
-    flagged: false,
   };
 }
 
@@ -42,6 +41,11 @@ export function todosReducer(state: AppState, action: Action): AppState {
         lists: action.payload.lists,
         todos: action.payload.todos,
         activeListId: action.payload.activeListId,
+        activeSmartView: action.payload.activeSmartView,
+        filters: {
+          ...state.filters,
+          showCompleted: action.payload.showCompleted,
+        },
       };
 
     case 'INIT_LOAD_FAILURE':
@@ -154,24 +158,10 @@ export function todosReducer(state: AppState, action: Action): AppState {
       };
     }
 
-    case 'TOGGLE_FLAG':
-      return {
-        ...state,
-        todos: state.todos.map((t) =>
-          t.id === action.payload.id ? { ...t, flagged: !t.flagged } : t,
-        ),
-      };
-
     case 'SET_SEARCH':
       return {
         ...state,
         filters: { ...state.filters, search: action.payload.value },
-      };
-
-    case 'SET_FLAGGED_ONLY':
-      return {
-        ...state,
-        filters: { ...state.filters, flaggedOnly: action.payload.value },
       };
 
     case 'SET_SHOW_COMPLETED':
@@ -194,6 +184,7 @@ export function todosReducer(state: AppState, action: Action): AppState {
         ...state,
         lists: [...state.lists, list],
         activeListId: list.id,
+        activeSmartView: 'all',
       };
     }
 
@@ -222,11 +213,23 @@ export function todosReducer(state: AppState, action: Action): AppState {
         lists: remainingLists,
         todos: remainingTodos,
         activeListId: nextActive,
+        activeSmartView: nextActive === null ? 'all' : state.activeSmartView,
       };
     }
 
     case 'SET_ACTIVE_LIST':
-      return { ...state, activeListId: action.payload.id };
+      return {
+        ...state,
+        activeListId: action.payload.id,
+        activeSmartView: action.payload.id === null ? 'all' : state.activeSmartView,
+      };
+
+    case 'SET_SMART_VIEW':
+      return {
+        ...state,
+        activeListId: null,
+        activeSmartView: action.payload.view,
+      };
 
     case 'CLEAR_COMPLETED': {
       const { listId } = action.payload;

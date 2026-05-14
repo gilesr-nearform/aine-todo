@@ -1,4 +1,4 @@
-import type { List, ListId, Todo } from './types';
+import type { List, ListId, SmartView, Todo } from './types';
 
 export const V1_KEY = 'listlens:v1:todos';
 export const STORAGE_KEY = 'listlens:v2:state';
@@ -17,6 +17,10 @@ interface PersistedTodo {
   completed: boolean;
   createdAt: string;
   notes?: string;
+  /**
+   * Kept in the schema for read-only backward compatibility with Epic 07 data.
+   * No longer written. See Epic 11 (flag removal).
+   */
   flagged?: boolean;
 }
 
@@ -24,12 +28,20 @@ interface PersistedState {
   lists: PersistedList[];
   todos: PersistedTodo[];
   activeListId: string | null;
+  activeSmartView?: SmartView;
+  showCompleted?: boolean;
 }
 
 export interface LoadedState {
   lists: List[];
   todos: Todo[];
   activeListId: ListId | null;
+  activeSmartView: SmartView;
+  showCompleted: boolean;
+}
+
+function isSmartView(value: unknown): value is SmartView {
+  return value === 'all' || value === 'completed';
 }
 
 function isPersistedList(value: unknown): value is PersistedList {
@@ -85,7 +97,6 @@ function hydrateTodo(entry: PersistedTodo, fallbackListId: ListId): Todo {
     ...(entry.notes !== undefined && entry.notes !== ''
       ? { notes: entry.notes }
       : {}),
-    flagged: entry.flagged ?? false,
   };
 }
 
@@ -99,6 +110,8 @@ function emptyState(): LoadedState {
     lists: [defaultList],
     todos: [],
     activeListId: defaultList.id,
+    activeSmartView: 'all',
+    showCompleted: false,
   };
 }
 
@@ -125,6 +138,8 @@ function migrateV1(): LoadedState | null {
       lists: [defaultList],
       todos,
       activeListId: defaultList.id,
+      activeSmartView: 'all',
+      showCompleted: false,
     };
   } catch (err) {
     console.warn(`[${V1_KEY}] failed to migrate from v1:`, err);
@@ -150,12 +165,20 @@ export function readFromStorage(): LoadedState {
           createdAt: new Date(entry.createdAt),
         });
       }
+      const activeSmartView: SmartView = isSmartView(parsed.activeSmartView)
+        ? parsed.activeSmartView
+        : 'all';
+      const showCompleted: boolean =
+        typeof parsed.showCompleted === 'boolean' ? parsed.showCompleted : false;
+
       if (lists.length === 0) {
         const fallback = emptyState();
         return {
           ...fallback,
           activeListId:
             parsed.activeListId === null ? null : fallback.activeListId,
+          activeSmartView,
+          showCompleted,
         };
       }
       const firstListId = lists[0]?.id;
@@ -181,7 +204,7 @@ export function readFromStorage(): LoadedState {
           : parsed.activeListId === null
             ? null
             : firstListId;
-      return { lists, todos, activeListId };
+      return { lists, todos, activeListId, activeSmartView, showCompleted };
     }
 
     const migrated = migrateV1();
@@ -209,9 +232,10 @@ export function writeToStorage(state: LoadedState): void {
         completed: t.completed,
         createdAt: t.createdAt.toISOString(),
         ...(t.notes !== undefined ? { notes: t.notes } : {}),
-        flagged: t.flagged,
       })),
       activeListId: state.activeListId,
+      activeSmartView: state.activeSmartView,
+      showCompleted: state.showCompleted,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   } catch (err) {

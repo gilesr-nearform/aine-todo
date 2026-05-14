@@ -8,19 +8,19 @@ import {
   SideNavItem,
 } from '@ogcio/design-system-react';
 import {
-  useEffect,
   useId,
   useMemo,
   useRef,
   useState,
   type FormEvent,
-  type KeyboardEvent,
 } from 'react';
+
 import { useT } from '../../i18n/I18nContext';
 import { useTodos } from '../../state/TodosContext';
 import type { List, ListId } from '../../state/types';
 
 const SMART_ALL_VALUE = '__all__';
+const SMART_COMPLETED_VALUE = '__completed__';
 
 interface SidebarProps {
   onNavigate?: () => void;
@@ -30,23 +30,29 @@ export function Sidebar({ onNavigate }: SidebarProps) {
   const { state, dispatch } = useTodos();
   const t = useT();
   const [draft, setDraft] = useState('');
-  const [renamingId, setRenamingId] = useState<ListId | null>(null);
   const newListInputId = useId();
   const formRef = useRef<HTMLFormElement>(null);
 
   const counts = useMemo(() => {
     const byList = new Map<ListId, number>();
+    let completed = 0;
     for (const todo of state.todos) {
       byList.set(todo.listId, (byList.get(todo.listId) ?? 0) + 1);
+      if (todo.completed) completed += 1;
     }
-    return { all: state.todos.length, byList };
+    return { all: state.todos.length, completed, byList };
   }, [state.todos]);
 
   if (state.status !== 'success') return null;
 
   function handleSelect(value: string) {
-    const nextId = value === SMART_ALL_VALUE ? null : (value as ListId);
-    dispatch({ type: 'SET_ACTIVE_LIST', payload: { id: nextId } });
+    if (value === SMART_ALL_VALUE) {
+      dispatch({ type: 'SET_SMART_VIEW', payload: { view: 'all' } });
+    } else if (value === SMART_COMPLETED_VALUE) {
+      dispatch({ type: 'SET_SMART_VIEW', payload: { view: 'completed' } });
+    } else {
+      dispatch({ type: 'SET_ACTIVE_LIST', payload: { id: value as ListId } });
+    }
     onNavigate?.();
   }
 
@@ -65,7 +71,11 @@ export function Sidebar({ onNavigate }: SidebarProps) {
   }
 
   const selectedValue =
-    state.activeListId === null ? SMART_ALL_VALUE : state.activeListId;
+    state.activeListId !== null
+      ? state.activeListId
+      : state.activeSmartView === 'completed'
+        ? SMART_COMPLETED_VALUE
+        : SMART_ALL_VALUE;
 
   return (
     <nav
@@ -82,19 +92,17 @@ export function Sidebar({ onNavigate }: SidebarProps) {
           <SideNavItem value={SMART_ALL_VALUE} label={t('sidebar.allTasks')} icon="apps" />
           {counts.all > 0 ? <CountBadge count={counts.all} /> : null}
         </div>
+        <div className="relative">
+          <SideNavItem
+            value={SMART_COMPLETED_VALUE}
+            label={t('sidebar.completed')}
+            icon="check_circle"
+          />
+          {counts.completed > 0 ? <CountBadge count={counts.completed} /> : null}
+        </div>
         <SideNavHeading as="h2">{t('sidebar.myLists')}</SideNavHeading>
         {state.lists.map((list) => {
           const count = counts.byList.get(list.id) ?? 0;
-          if (renamingId === list.id) {
-            return (
-              <RenameRow
-                key={list.id}
-                list={list}
-                onCancel={() => setRenamingId(null)}
-                onSaved={() => setRenamingId(null)}
-              />
-            );
-          }
           return (
             <div
               key={list.id}
@@ -111,15 +119,6 @@ export function Sidebar({ onNavigate }: SidebarProps) {
                   {count}
                 </span>
               ) : null}
-              <IconButton
-                type="button"
-                variant="flat"
-                size="sm"
-                ariaLabel={t('sidebar.rename', { name: list.name })}
-                onClick={() => setRenamingId(list.id)}
-              >
-                <Icon icon="edit" size="sm" ariaHidden />
-              </IconButton>
               <span className="opacity-100 transition-opacity sm:opacity-0 sm:group-hover/list:opacity-100 sm:group-focus-within/list:opacity-100">
                 <IconButton
                   type="button"
@@ -178,63 +177,5 @@ function CountBadge({ count, className }: CountBadgeProps) {
     >
       {count}
     </span>
-  );
-}
-
-interface RenameRowProps {
-  list: List;
-  onCancel: () => void;
-  onSaved: () => void;
-}
-
-function RenameRow({ list, onCancel, onSaved }: RenameRowProps) {
-  const { dispatch } = useTodos();
-  const t = useT();
-  const [value, setValue] = useState(list.name);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    inputRef.current?.focus();
-    inputRef.current?.select();
-  }, []);
-
-  function save() {
-    const trimmed = value.trim();
-    if (trimmed.length === 0) {
-      onCancel();
-      return;
-    }
-    dispatch({ type: 'RENAME_LIST', payload: { id: list.id, name: trimmed } });
-    onSaved();
-  }
-
-  function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      save();
-      return;
-    }
-    if (event.key === 'Escape') {
-      event.preventDefault();
-      onCancel();
-    }
-  }
-
-  return (
-    <div className="flex items-center gap-1 px-2 py-1">
-      <label className="sr-only" htmlFor={`rename-${list.id}`}>
-        {t('sidebar.renameInputLabel', { name: list.name })}
-      </label>
-      <InputText
-        id={`rename-${list.id}`}
-        ref={inputRef}
-        type="text"
-        value={value}
-        onChange={(event) => setValue(event.target.value)}
-        onBlur={save}
-        onKeyDown={handleKeyDown}
-        autoComplete="off"
-      />
-    </div>
   );
 }

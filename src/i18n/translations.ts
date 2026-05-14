@@ -37,6 +37,7 @@ const en = {
   'sidebar.aria': 'Lists',
   'sidebar.smart': 'Smart',
   'sidebar.allTasks': 'All tasks',
+  'sidebar.completed': 'Completed',
   'sidebar.myLists': 'My lists',
   'sidebar.newListLabel': 'New list name',
   'sidebar.newListPlaceholder': 'New list name',
@@ -64,7 +65,6 @@ const en = {
   // Controls
   'controls.searchLabel': 'Search tasks',
   'controls.searchPlaceholder': 'Search',
-  'controls.flaggedOnly': 'Flagged only',
 
   // Input bar
   'input.formAria': 'Add a task',
@@ -74,8 +74,6 @@ const en = {
   'input.add': 'Add',
 
   // Todo item
-  'todo.flag': "Flag '{description}'",
-  'todo.unflag': "Unflag '{description}'",
   'todo.edit': "Edit '{description}'",
   'todo.delete': "Delete '{description}'",
   'todo.moveUp': "Move '{description}' up",
@@ -105,6 +103,7 @@ const en = {
   'state.emptyBodyForList': 'No tasks in {list} yet. Add one below.',
   'state.emptyBodyGeneric': 'No tasks yet. Add one below.',
   'state.noMatches': 'No tasks match your filters.',
+  'state.noCompletedYet': 'Nothing completed yet. Tick a task to see it here.',
   'state.resetFilters': 'Reset filters',
 
   // List title
@@ -127,6 +126,7 @@ const ga: Record<Key, string> = {
   'sidebar.aria': 'Liostaí',
   'sidebar.smart': 'Cliste',
   'sidebar.allTasks': 'Gach tasc',
+  'sidebar.completed': 'Críochnaithe',
   'sidebar.myLists': 'Mo liostaí',
   'sidebar.newListLabel': 'Ainm liosta nua',
   'sidebar.newListPlaceholder': 'Ainm liosta nua',
@@ -154,7 +154,6 @@ const ga: Record<Key, string> = {
   // Controls
   'controls.searchLabel': 'Cuardaigh tascanna',
   'controls.searchPlaceholder': 'Cuardaigh',
-  'controls.flaggedOnly': 'Bratáilte amháin',
 
   // Input bar
   'input.formAria': 'Cuir tasc leis',
@@ -164,8 +163,6 @@ const ga: Record<Key, string> = {
   'input.add': 'Cuir leis',
 
   // Todo item
-  'todo.flag': "Cuir bratach ar '{description}'",
-  'todo.unflag': "Bain an bhratach de '{description}'",
   'todo.edit': "Cuir '{description}' in eagar",
   'todo.delete': "Scrios '{description}'",
   'todo.moveUp': "Bog '{description}' suas",
@@ -195,6 +192,7 @@ const ga: Record<Key, string> = {
   'state.emptyBodyForList': 'Níl aon tasc i {list} fós. Cuir ceann leis thíos.',
   'state.emptyBodyGeneric': 'Níl aon tasc fós. Cuir ceann leis thíos.',
   'state.noMatches': 'Níl aon tasc a chomhlíonann do scagairí.',
+  'state.noCompletedYet': 'Níl aon rud críochnaithe fós. Cuir tic ar thasc le hé a fheiceáil anseo.',
   'state.resetFilters': 'Athshocraigh na scagairí',
 
   // List title

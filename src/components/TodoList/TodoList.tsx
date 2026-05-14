@@ -1,82 +1,130 @@
-import { Button, Heading } from '@ogcio/design-system-react';
+import { Button, Heading, Icon, IconButton, InputText } from '@ogcio/design-system-react';
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 
 import { useT } from '../../i18n/I18nContext';
 import { useTodos } from '../../state/TodosContext';
-import {
-  defaultFilters,
-  type Filters,
-  type ListId,
-  type Todo,
-} from '../../state/types';
+import type { Filters, ListId, SmartView, Todo } from '../../state/types';
 import { countCompleted } from '../../utils/todoCounts';
 import { ListControls } from '../ListControls/ListControls';
 import { ListSummary } from '../ListSummary/ListSummary';
 import { TodoItem } from '../TodoItem/TodoItem';
 
-function filtersAreDefault(filters: Filters): boolean {
-  return (
-    filters.search === defaultFilters.search &&
-    filters.flaggedOnly === defaultFilters.flaggedOnly &&
-    filters.showCompleted === defaultFilters.showCompleted
-  );
-}
-
-function matchesFilters(todo: Todo, filters: Filters): boolean {
-  if (!filters.showCompleted && todo.completed) return false;
-  if (filters.flaggedOnly && !todo.flagged) return false;
+function matchesSearch(todo: Todo, filters: Filters): boolean {
   const query = filters.search.trim().toLowerCase();
-  if (query.length > 0) {
-    const haystack = `${todo.description} ${todo.notes ?? ''}`.toLowerCase();
-    if (!haystack.includes(query)) return false;
-  }
-  return true;
+  if (query.length === 0) return true;
+  const haystack = `${todo.description} ${todo.notes ?? ''}`.toLowerCase();
+  return haystack.includes(query);
 }
 
-function matchesList(todo: Todo, activeListId: ListId | null): boolean {
-  if (activeListId === null) return true;
-  return todo.listId === activeListId;
+function inScope(
+  todo: Todo,
+  activeListId: ListId | null,
+  activeSmartView: SmartView,
+): boolean {
+  if (activeListId !== null) return todo.listId === activeListId;
+  if (activeSmartView === 'completed') return todo.completed;
+  return true;
 }
 
 function activeListName(
   activeListId: ListId | null,
+  activeSmartView: SmartView,
   lists: ReturnType<typeof useTodos>['state']['lists'],
-  fallback: string,
+  fallbackAll: string,
+  fallbackCompleted: string,
 ): string {
-  if (activeListId === null) return fallback;
+  if (activeListId === null) {
+    return activeSmartView === 'completed' ? fallbackCompleted : fallbackAll;
+  }
   const found = lists.find((l) => l.id === activeListId);
-  return found?.name ?? fallback;
+  return found?.name ?? fallbackAll;
 }
 
 export function TodoList() {
   const { state, dispatch } = useTodos();
   const t = useT();
+  const [renamingActiveList, setRenamingActiveList] = useState(false);
+  const [prevActiveListId, setPrevActiveListId] = useState(state.activeListId);
+  if (prevActiveListId !== state.activeListId) {
+    setPrevActiveListId(state.activeListId);
+    setRenamingActiveList(false);
+  }
 
-  const filtersActive = !filtersAreDefault(state.filters);
-  const inList = state.todos.filter((tt) => matchesList(tt, state.activeListId));
-  const visibleTodos = filtersActive
-    ? inList.filter((tt) => matchesFilters(tt, state.filters))
-    : inList;
-  const allTasksLabel = t('list.allTasksHeading');
-  const listName = activeListName(state.activeListId, state.lists, allTasksLabel);
-  const completed = countCompleted(inList);
+  const isCompletedSmartView =
+    state.activeListId === null && state.activeSmartView === 'completed';
+
+  const inScopeTodos = state.todos.filter((tt) =>
+    inScope(tt, state.activeListId, state.activeSmartView),
+  );
+
+  const searchActive = state.filters.search.trim().length > 0;
+  const completionFilterActive =
+    !isCompletedSmartView && !state.filters.showCompleted;
+  const filtersActive = searchActive || completionFilterActive;
+
+  const visibleTodos = inScopeTodos.filter((tt) => {
+    if (!matchesSearch(tt, state.filters)) return false;
+    if (completionFilterActive && tt.completed) return false;
+    return true;
+  });
+
+  const listName = activeListName(
+    state.activeListId,
+    state.activeSmartView,
+    state.lists,
+    t('list.allTasksHeading'),
+    t('sidebar.completed'),
+  );
+  const completed = countCompleted(inScopeTodos);
+
+  const isUserList = state.activeListId !== null;
+  const activeList =
+    state.activeListId !== null
+      ? state.lists.find((l) => l.id === state.activeListId)
+      : undefined;
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-3">
-      <Heading as="h2" size="md">
-        {listName}
-      </Heading>
+      <div className="flex items-center justify-between gap-2">
+        {isUserList && renamingActiveList && activeList !== undefined ? (
+          <ListTitleRename
+            list={activeList}
+            onDone={() => setRenamingActiveList(false)}
+          />
+        ) : (
+          <>
+            <Heading as="h2" size="md">
+              {listName}
+            </Heading>
+            {isUserList && activeList !== undefined ? (
+              <IconButton
+                type="button"
+                variant="flat"
+                size="sm"
+                ariaLabel={t('sidebar.rename', { name: activeList.name })}
+                onClick={() => setRenamingActiveList(true)}
+              >
+                <Icon icon="edit" size="sm" ariaHidden />
+              </IconButton>
+            ) : null}
+          </>
+        )}
+      </div>
       <ListSummary
-        total={inList.length}
+        total={inScopeTodos.length}
         completed={completed}
         listId={state.activeListId}
         listName={listName}
+        hideShowCompletedToggle={isCompletedSmartView}
       />
       <ListControls />
-      {inList.length === 0 ? (
+      {inScopeTodos.length === 0 ? (
         <p className="py-6 text-base text-gray-700">
-          {state.activeListId === null
-            ? t('state.emptyBodyGeneric')
-            : t('state.emptyBodyForList', { list: listName })}
+          {isCompletedSmartView
+            ? t('state.noCompletedYet')
+            : state.activeListId === null
+              ? t('state.emptyBodyGeneric')
+              : t('state.emptyBodyForList', { list: listName })}
         </p>
       ) : visibleTodos.length === 0 ? (
         <div className="flex flex-col items-center gap-3 py-8 text-center">
@@ -87,10 +135,6 @@ export function TodoList() {
             size="sm"
             onClick={() => {
               dispatch({ type: 'SET_SEARCH', payload: { value: '' } });
-              dispatch({
-                type: 'SET_FLAGGED_ONLY',
-                payload: { value: false },
-              });
               dispatch({
                 type: 'SET_SHOW_COMPLETED',
                 payload: { value: true },
@@ -103,19 +147,84 @@ export function TodoList() {
       ) : (
         <ul className="list-none p-0">
           {visibleTodos.map((todo) => {
-            const inListIndex = inList.findIndex((tt) => tt.id === todo.id);
+            const scopeIndex = inScopeTodos.findIndex((tt) => tt.id === todo.id);
             return (
               <TodoItem
                 key={todo.id}
                 todo={todo}
-                index={inListIndex}
-                total={inList.length}
-                reorderDisabled={filtersActive}
+                index={scopeIndex}
+                total={inScopeTodos.length}
+                reorderDisabled={filtersActive || isCompletedSmartView}
               />
             );
           })}
         </ul>
       )}
+    </div>
+  );
+}
+
+interface ListTitleRenameProps {
+  list: { id: ListId; name: string };
+  onDone: () => void;
+}
+
+function ListTitleRename({ list, onDone }: ListTitleRenameProps) {
+  const { dispatch } = useTodos();
+  const t = useT();
+  const [value, setValue] = useState(list.name);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+    inputRef.current?.select();
+  }, []);
+
+  function save() {
+    const trimmed = value.trim();
+    if (trimmed.length === 0) {
+      onDone();
+      return;
+    }
+    dispatch({ type: 'RENAME_LIST', payload: { id: list.id, name: trimmed } });
+    onDone();
+  }
+
+  function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      save();
+      return;
+    }
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      onDone();
+    }
+  }
+
+  return (
+    <div className="flex w-full items-center gap-2">
+      <label className="sr-only" htmlFor={`rename-title-${list.id}`}>
+        {t('sidebar.renameInputLabel', { name: list.name })}
+      </label>
+      <div className="flex-1">
+        <InputText
+          id={`rename-title-${list.id}`}
+          ref={inputRef}
+          type="text"
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+          onBlur={save}
+          onKeyDown={handleKeyDown}
+          autoComplete="off"
+        />
+      </div>
+      <Button type="button" variant="secondary" size="sm" onMouseDown={save}>
+        {t('sidebar.save')}
+      </Button>
+      <Button type="button" variant="flat" size="sm" onMouseDown={onDone}>
+        {t('sidebar.cancel')}
+      </Button>
     </div>
   );
 }

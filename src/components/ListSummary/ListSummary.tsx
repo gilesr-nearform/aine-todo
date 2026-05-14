@@ -9,6 +9,7 @@ interface ListSummaryProps {
   completed: number;
   listId: ListId | null;
   listName: string;
+  hideShowCompletedToggle?: boolean;
 }
 
 export function ListSummary({
@@ -16,6 +17,7 @@ export function ListSummary({
   completed,
   listId,
   listName,
+  hideShowCompletedToggle = false,
 }: ListSummaryProps) {
   const { state, dispatch } = useTodos();
   const t = useT();
@@ -48,27 +50,29 @@ export function ListSummary({
         >
           {t('summary.clear')}
         </Button>
-        <Button
-          type="button"
-          variant="secondary"
-          size="sm"
-          aria-pressed={!showCompleted}
-          onClick={() =>
-            dispatch({
-              type: 'SET_SHOW_COMPLETED',
-              payload: { value: !showCompleted },
-            })
-          }
-        >
-          <Icon
-            icon={showCompleted ? 'visibility_off' : 'visibility'}
+        {hideShowCompletedToggle ? null : (
+          <Button
+            type="button"
+            variant="secondary"
             size="sm"
-            ariaHidden
-          />
-          <span className="ml-1">
-            {showCompleted ? t('summary.hide') : t('summary.show')}
-          </span>
-        </Button>
+            aria-pressed={!showCompleted}
+            onClick={() =>
+              dispatch({
+                type: 'SET_SHOW_COMPLETED',
+                payload: { value: !showCompleted },
+              })
+            }
+          >
+            <Icon
+              icon={showCompleted ? 'visibility_off' : 'visibility'}
+              size="sm"
+              ariaHidden
+            />
+            <span className="ml-1">
+              {showCompleted ? t('summary.hide') : t('summary.show')}
+            </span>
+          </Button>
+        )}
       </div>
     </div>
   );

@@ -5,7 +5,6 @@ import { useI18n } from '../../i18n/I18nContext';
 import { useTodos } from '../../state/TodosContext';
 import type { Todo } from '../../state/types';
 import { describeCreatedAt } from '../../utils/formatTimestamp';
-import { FlagIcon } from '../Icons/FlagIcon';
 import { TodoDeleteAction } from '../TodoDeleteAction/TodoDeleteAction';
 import { TodoEditor } from '../TodoEditor/TodoEditor';
 import { TodoReorderActions } from '../TodoReorderActions/TodoReorderActions';
@@ -44,24 +43,17 @@ export function TodoItem({
     dispatch({ type: 'DELETE_TODO', payload: { id: todo.id } });
   }
 
-  const flagLabel = todo.flagged
-    ? t('todo.unflag', { description: todo.description })
-    : t('todo.flag', { description: todo.description });
   const createdAt = describeCreatedAt(todo.createdAt, locale);
   const createdAtLabel =
     createdAt.kind === 'time'
       ? t('todo.createdAtTime', { time: createdAt.value })
       : t('todo.createdAtDate', { date: createdAt.value });
 
-  const rowClasses = [
-    'todo-row-enter group flex flex-col gap-1 border-b border-gray-200 py-3 last:border-b-0',
-    todo.flagged ? 'border-l-4 border-l-amber-500 pl-3' : '',
-  ]
-    .filter(Boolean)
-    .join(' ');
-
   return (
-    <li className={rowClasses} onKeyDown={handleKeyDown}>
+    <li
+      className="todo-row-enter group flex flex-col gap-1 border-b border-gray-200 py-3 last:border-b-0"
+      onKeyDown={handleKeyDown}
+    >
       <div className="flex items-start gap-3">
         <InputCheckbox
           id={checkboxId}
@@ -90,21 +82,6 @@ export function TodoItem({
         </div>
         {!isEditing ? (
           <div className="flex items-start gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
-            <IconButton
-              type="button"
-              variant="flat"
-              size="sm"
-              ariaLabel={flagLabel}
-              aria-pressed={todo.flagged}
-              onClick={() =>
-                dispatch({ type: 'TOGGLE_FLAG', payload: { id: todo.id } })
-              }
-            >
-              <FlagIcon
-                filled={todo.flagged}
-                className={todo.flagged ? 'text-amber-600' : 'text-gray-600'}
-              />
-            </IconButton>
             <IconButton
               type="button"
               variant="flat"

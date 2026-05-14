@@ -3,6 +3,8 @@ export type ListId = string;
 
 export type LoadStatus = 'idle' | 'loading' | 'success' | 'error';
 
+export type SmartView = 'all' | 'completed';
+
 export interface List {
   id: ListId;
   name: string;
@@ -16,7 +18,6 @@ export interface Todo {
   completed: boolean;
   createdAt: Date;
   notes?: string;
-  flagged: boolean;
 }
 
 export interface DeletedRecord {
@@ -27,7 +28,6 @@ export interface DeletedRecord {
 
 export interface Filters {
   search: string;
-  flaggedOnly: boolean;
   showCompleted: boolean;
 }
 
@@ -36,6 +36,7 @@ export interface AppState {
   lists: List[];
   todos: Todo[];
   activeListId: ListId | null;
+  activeSmartView: SmartView;
   recentlyDeleted: DeletedRecord[];
   filters: Filters;
   editingId: TodoId | null;
@@ -45,7 +46,13 @@ export type Action =
   | { type: 'INIT_LOAD_START' }
   | {
       type: 'INIT_LOAD_SUCCESS';
-      payload: { lists: List[]; todos: Todo[]; activeListId: ListId | null };
+      payload: {
+        lists: List[];
+        todos: Todo[];
+        activeListId: ListId | null;
+        activeSmartView: SmartView;
+        showCompleted: boolean;
+      };
     }
   | { type: 'INIT_LOAD_FAILURE' }
   | { type: 'INIT_LOAD_RETRY' }
@@ -62,9 +69,7 @@ export type Action =
       type: 'UPDATE_TODO';
       payload: { id: TodoId; description: string; notes?: string };
     }
-  | { type: 'TOGGLE_FLAG'; payload: { id: TodoId } }
   | { type: 'SET_SEARCH'; payload: { value: string } }
-  | { type: 'SET_FLAGGED_ONLY'; payload: { value: boolean } }
   | { type: 'SET_SHOW_COMPLETED'; payload: { value: boolean } }
   | { type: 'START_EDIT'; payload: { id: TodoId } }
   | { type: 'CANCEL_EDIT' }
@@ -72,12 +77,12 @@ export type Action =
   | { type: 'RENAME_LIST'; payload: { id: ListId; name: string } }
   | { type: 'DELETE_LIST'; payload: { id: ListId } }
   | { type: 'SET_ACTIVE_LIST'; payload: { id: ListId | null } }
+  | { type: 'SET_SMART_VIEW'; payload: { view: SmartView } }
   | { type: 'CLEAR_COMPLETED'; payload: { listId: ListId | null } };
 
 export const defaultFilters: Filters = {
   search: '',
-  flaggedOnly: false,
-  showCompleted: true,
+  showCompleted: false,
 };
 
 export const initialState: AppState = {
@@ -85,6 +90,7 @@ export const initialState: AppState = {
   lists: [],
   todos: [],
   activeListId: null,
+  activeSmartView: 'all',
   recentlyDeleted: [],
   filters: defaultFilters,
   editingId: null,

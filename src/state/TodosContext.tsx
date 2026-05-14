@@ -56,8 +56,17 @@ export function TodosProvider({ children }: { children: ReactNode }) {
       lists: state.lists,
       todos: state.todos,
       activeListId: state.activeListId,
+      activeSmartView: state.activeSmartView,
+      showCompleted: state.filters.showCompleted,
     });
-  }, [state.status, state.lists, state.todos, state.activeListId]);
+  }, [
+    state.status,
+    state.lists,
+    state.todos,
+    state.activeListId,
+    state.activeSmartView,
+    state.filters.showCompleted,
+  ]);
 
   const retry = useCallback(() => runLoad(true), [runLoad]);
 
