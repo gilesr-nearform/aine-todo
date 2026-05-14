@@ -3,15 +3,17 @@ description: Master project rules for ListLens — a personal todo app using the
 alwaysApply: true
 ---
 
-# ListLens — Cursor Project Rules
+# UX To-do list — Cursor Project Rules
 
 > Cursor reads this on every session. It mirrors `CLAUDE.md` so both AI tools work from the same source of truth.
 
 ## Project context
 
-**Working name:** ListLens *(placeholder)*
+**Name:** UX To-do list *(working name "ListLens" was retired Day 1; localStorage keys keep the `listlens:` prefix for storage-format compatibility — do not rename them)*
 
-**What it is:** A personal todo app prototype. Four core actions: create, view, complete, delete. Mock data only. Built using the Government of Ireland Design System. Deliverable for an AI training programme on Spec-Driven Development.
+**What it is:** A personal todo app prototype. Built on the Government of Ireland Design System with seven shipped epics: foundation, core actions, delete + undo, UI states, polish, reorder, Reminders-style depth, multiple lists, bilingual gov.ie header, completion-flow tightening, and light/dark theme switcher. Mock data only — no backend. Deliverable for an AI training programme on Spec-Driven Development.
+
+**Live URL:** https://gilesr-nearform.github.io/aine-todo/ — auto-deployed from `main` via `.github/workflows/deploy.yml`. The Day-0 "no deployment" rule was overridden as a scoped exception (assessment-link use case) — see `docs/brief.md` §9.
 
 **Source of truth:** The BMAD specs in `docs/`. Implementation follows specs, not the other way around.
 
@@ -30,9 +32,15 @@ If asked for something not covered in the docs, **ask for the spec first** rathe
 
 - Vite + React 18 + TypeScript (strict)
 - `@ogcio/design-system-react`, `@ogcio/design-system-tokens`, `@ogcio/design-system-tailwind`, `@ogcio/theme-govie`
-- Tailwind CSS with gov.ie preset
-- React Context + useReducer for state, persisted to `localStorage` (`listlens:v1:todos`)
+- `@fontsource/lato` (body font) + `material-symbols` (self-hosted Material Symbols Outlined for gov.ie's `Icon` API — gov.ie ships the icon-name API but not the font)
+- Tailwind CSS with gov.ie preset (`darkMode: ['selector', '[data-theme="govie-dark"]']`)
+- React Context + useReducer for state, persisted to `localStorage`:
+  - `listlens:v2:state` — lists, todos, activeListId, activeSmartView, showCompleted
+  - `listlens:v1:lang` — `'en'` or `'ga'`
+  - `listlens:v1:theme` — `'light'` or `'dark'`
+- Custom lightweight i18n via Context + dictionary (English + Irish). No i18next.
 - Mock data only for the load simulator. No backend. No real APIs. No AI calls.
+- Deploy: GitHub Pages via Actions on every push to `main`.
 
 ## Design ethos — Government of Ireland Design System
 
@@ -49,22 +57,28 @@ Voice: plain English, sentence case, direct. No emoji. No exclamations. Match th
 - **TypeScript strict mode.** No `any`. No `@ts-ignore` without an inline comment.
 - **All interactive components must ship with all states:** hover, focus, active, disabled.
 - **All UI states must ship polished:** empty, loading, error, populated.
-- **No features outside the official PRD.** Photo-scan is cut from v1.
-- **No new dependencies** without checking `docs/architecture.md`.
-- **No deployment, no PWA, no exports, no integrations.**
-- **No overriding gov.ie design system tokens.** Use the system; extend only for gaps.
+- **No features outside the BMAD specs.** Stay inside what's already specced; new features need a story.
+- **No new dependencies** without checking `docs/architecture.md` and logging in `docs/brief.md` §9.
+- **No PWA, no exports, no third-party integrations, no real APIs.** (Deployment to GitHub Pages was opened as a scoped exception for the assessment-review link — see `docs/brief.md` §9.)
+- **No overriding gov.ie design system tokens** — *except* the scoped exception for dark-mode neutral/gray primitives documented in `docs/brief.md` §9, because gov.ie's `dark.css` ships byte-identical to `light.css`. Brand colours and intent tokens are untouched.
+- **Do not rename the `listlens:` localStorage key prefix.** The user-facing app name was changed but the storage format identifier is functional and locked.
 - **Update the decision log** in `docs/brief.md` for any non-trivial choice.
 
-## Build order — strict
+## Build order — historical
 
-1. App shell, state plumbing, gov.ie design system installed and verified working
-2. localStorage persistence (Story 1.4 — required, not optional)
-3. Core components using gov.ie primitives where available
-4. Create / complete / delete flows wired with mock data + persistence
-5. Empty / loading / error states — all polished
-6. Responsive pass — mobile breakpoints, real-device check
-7. Interaction states pass — every component
-8. Day-5 evaluation point: completion-grouping decision (Story 5.4)
+Epics 01–08 plus 10–12 are shipped. Reference order, preserved in `docs/stories/`:
+
+1. Foundation (Epic 01)
+2. Core actions (Epic 02)
+3. Delete + undo (Epic 03)
+4. UI states (Epic 04)
+5. Polish (Epic 05) — kept "completed stays in place" per Day-5 decision
+6. Reorder via up/down buttons (Epic 06)
+7. Reminders-style depth — notes + filters (Epic 07; flag feature later removed in Epic 11)
+8. Multiple lists with v1→v2 storage migration (Epic 08)
+9. Bilingual gov.ie header + i18n (Epic 10)
+10. Completion-flow tightening — auto-hide completed default (Epic 11)
+11. Light + dark theme switcher (Epic 12)
 
 ## When the user asks for something
 

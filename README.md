@@ -1,6 +1,8 @@
-# ListLens
+# UX To-do list
 
 Personal todo app prototype built using the Government of Ireland Design System. Deliverable for an AI training programme on Spec-Driven Development with the BMAD framework.
+
+> The working name during early specs was *ListLens*. It was retired Day 1 in favour of *UX To-do list* once the prototype found its voice — see `docs/brief.md` §9. The internal `listlens:` `localStorage` prefix is preserved as a stable storage identifier and intentionally not renamed.
 
 The BMAD planning artifacts in [docs/](docs/) are the source of truth. See [CLAUDE.md](CLAUDE.md) for the AI-agent context and [docs/stories/](docs/stories/) for the build-order user stories.
 
@@ -39,10 +41,15 @@ pnpm install
 
 ## Stack
 
-- Vite + React 18+ + TypeScript (strict, with `noUncheckedIndexedAccess`)
+- Vite + React 19 + TypeScript (strict, with `noUncheckedIndexedAccess`)
 - Government of Ireland Design System: `@ogcio/design-system-react`, `@ogcio/design-system-tokens`, `@ogcio/design-system-tailwind`, `@ogcio/theme-govie`
-- Tailwind CSS (gov.ie preset via `createTheme()`)
-- React Context + `useReducer` for state, persisted to `localStorage` under `listlens:v1:todos` (Story 1.4)
+- Tailwind CSS (gov.ie preset via `createTheme()`); `darkMode: ['selector', '[data-theme="govie-dark"]']`
+- Fonts: `@fontsource/lato` (gov.ie body font) + `material-symbols` (self-hosted Material Symbols Outlined — gov.ie's `Icon` API renders these via font ligatures but the design system doesn't ship the font itself)
+- React Context + `useReducer` for state, persisted to `localStorage`:
+  - `listlens:v2:state` — lists, todos, active list, smart view, show-completed (Story 1.4 + 8.x + 11.x)
+  - `listlens:v1:lang` — language preference (`en` | `ga`, Epic 10)
+  - `listlens:v1:theme` — theme preference (`light` | `dark`, Epic 12)
+- Lightweight i18n via Context + dictionary (English + Irish/Gaeilge) — no `i18next` dependency. See Epic 10.
 
 ## Demoing this
 
@@ -50,16 +57,18 @@ The app simulates a 600–900ms initial load with a 10% chance of failure, so th
 
 | Flag | Effect |
 |---|---|
-| `window.__instant = true` | Skip the simulated load delay. Still reads any persisted todos from `localStorage`. |
+| `window.__instant = true` | Skip the simulated load delay. Still reads any persisted state from `localStorage`. |
 | `window.__forceError = true` | Force the initial load to fail, regardless of what is in `localStorage`. |
 
-Tasks persist to `localStorage` under the versioned key `listlens:v1:todos`. To reset to the empty state during testing:
+State persists to `localStorage` under three versioned keys. To reset to the empty state during testing:
 
 ```js
-localStorage.removeItem('listlens:v1:todos');
+localStorage.removeItem('listlens:v2:state'); // lists + todos + view-state envelope
+localStorage.removeItem('listlens:v1:lang');  // 'en' | 'ga'
+localStorage.removeItem('listlens:v1:theme'); // 'light' | 'dark'
 ```
 
-Then reload the page.
+Then reload the page. (The `listlens:` prefix is a stable storage identifier — see the note at the top of this README.)
 
 ## Accessibility and polish status
 
@@ -82,11 +91,25 @@ Outstanding manual verification (cannot be done from inside the agent loop):
 
 ```
 src/
-  components/   custom components (gov.ie components are imported directly)
-  state/        reducer, context, types
-  mocks/        simulated initial-load + dev triggers
-  styles/       global CSS (gov.ie theme + Tailwind)
-docs/           BMAD artifacts (architecture, brief, ux-spec, stories)
-.cursor/rules/  Cursor agent rules
-CLAUDE.md       Claude Code agent rules
+  components/     custom components (gov.ie components imported directly)
+    AppShell/     header (incl. bilingual gov.ie strip), main layout, theme toggle
+    Sidebar/      desktop sidebar + mobile drawer (MobileNav)
+    TodoList/     list pane: header, summary, filter, items
+    TodoItem/     single row, reorder + delete + edit actions
+    TodoEditor/   inline editor (description + notes)
+    TodoInputBar/ pinned task creation bar
+    UndoToast/    destructive-action undo with countdown bar
+    ConfirmModal/ shared confirm dialog (used by clear-completed and delete-list)
+    EmptyState, LoadingState, ErrorState
+  state/          reducer, context, types, storage (v1→v2 migration)
+  i18n/           Context-based i18n (en + ga); translation dictionary
+  theme/          ThemeContext (light + dark) — see Epic 12
+  hooks/          custom hooks (useMediaQuery, useUndoTimer)
+  mocks/          simulated initial-load + dev triggers
+  utils/          formatters, todo-counts, etc.
+  styles/         global CSS (gov.ie theme + Tailwind + Material Symbols + dark overrides)
+docs/             BMAD artifacts (architecture, brief, prd, ux-spec, component-inventory, stories)
+.github/workflows GitHub Pages auto-deploy
+.cursor/rules/    Cursor agent rules
+CLAUDE.md         Claude Code agent rules
 ```

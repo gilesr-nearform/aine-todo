@@ -2,7 +2,7 @@
 
 > **Status:** Forwarding stub. The PRD-shaped content for this project lives across the official training PRD (the assessment source of truth, held outside this repo) and `[brief.md](brief.md)`, which is the Analyst-persona refinement sitting alongside it. This file exists so the cross-references in `stories/*.md` and `CLAUDE.md` resolve. Promote this to a standalone artifact later if the BMAD set is audited.
 >
-> **Owner:** PM persona. **Last updated:** Week 1, Day 1.
+> **Owner:** PM persona. **Last updated:** Week 1, Day 1 (post-Epic-12).
 
 ---
 
@@ -42,7 +42,9 @@ See `[brief.md](brief.md)` §5. Briefly: create / view / complete / delete, plus
 
 ## 4. Out-of-scope features
 
-See `[brief.md](brief.md)` §5. Notably: no accounts, no deadlines, no priorities, no tags, no multi-list, no backend, no real AI / vision, no exports, no integrations, no PWA, no deployment, no photo-scanning (moved to v2 — see `[brief.md](brief.md)` §10).
+See `[brief.md](brief.md)` §5. Notably: no accounts, no deadlines, no priorities, no tags, no backend, no real AI / vision, no exports, no integrations, no PWA, no photo-scanning (moved to v2 — see `[brief.md](brief.md)` §10).
+
+**Originally out of scope but added Day 1 as scope expansions** (each logged in `[brief.md](brief.md)` §9): reorder (Epic 06), notes + filters (Epic 07), multiple lists (Epic 08), bilingual gov.ie header + i18n (Epic 10), completion-flow tightening (Epic 11), light + dark theme (Epic 12). **Deployment to a public URL** was opened as a scoped exception (GitHub Pages auto-deploy of static build only, no backend) to make the prototype reviewable via a single link — see §9.
 
 ---
 
@@ -58,7 +60,7 @@ Covered in `[architecture.md](architecture.md)` §4.1 (`LoadStatus`) and `[compo
 
 ### 5.3 Completion-reorder behaviour — referenced by Story 5.x
 
-Decided in `[brief.md](brief.md)` §9 decision log (Day 0 entry): completed items default to "stays in place" for v1, with a Day-5 evaluation point in `[stories/05-polish.md](stories/05-polish.md)`. The Day-5 story owns the call on whether to add a grouped Completed section before the deliverable lands.
+Decided in `[brief.md](brief.md)` §9 decision log: completed items default to "stays in place" for v1 (Day-5 evaluation kept the default). **Superseded Day 1 by Epic 11** — completed tasks are now hidden by default with a Show / Hide completed toggle and a separate "Completed" smart view, replacing the grouped-completed-section idea entirely.
 
 ---
 

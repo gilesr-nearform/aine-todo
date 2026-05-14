@@ -1,8 +1,10 @@
 # UX Spec — Visual Language and Voice
 
-> **Owner:** UX persona · **Status:** Locked for week 1 · **Last updated:** Week 1, Day 0
+> **Owner:** UX persona · **Status:** Locked + iterated through Day 1 · **Last updated:** Week 1, Day 1 (post-Epic-12)
 >
 > **Source of truth:** The Government of Ireland Design System. This document does *not* invent tokens or override them — it defers to `@ogcio/design-system-tokens` and `@ogcio/theme-govie`. Where the design system has a token, use it. This document only documents (a) the design principles we operate under, (b) our component-mapping decisions (gov.ie vs custom), (c) the few places we extend the design system because it doesn't cover our case, and (d) voice and tone for the copy we write.
+>
+> **Scoped exceptions to "never override gov.ie tokens"** are tracked in `[brief.md](brief.md)` §9. As of Day 1 there are two: (1) dark-mode neutral/gray primitives are overridden because `@ogcio/theme-govie/dark.css` ships byte-identical to `light.css`; (2) a bespoke `.list-action-btn` class hooks the text colour of list-pane buttons in dark mode where gov.ie's `gi-text-color-*` classes collide with Tailwind utilities. Brand and intent tokens are untouched.
 >
 > **Always check:** the [React Storybook](https://ds.services.gov.ie/storybook-react/) and [Components catalogue](https://ds.services.gov.ie/components/) for the up-to-date list of available components, props, and tokens before implementing.
 
@@ -55,37 +57,43 @@ For each component in `component-inventory.md`, we identify whether to use a gov
 | Component | Source | Notes |
 |---|---|---|
 | `<App>`, `<AppShell>` | Custom (composition) | App-specific layout; uses gov.ie spacing / typography tokens |
-| `<Header>` | **Gov.ie `HeaderNext` + `HeaderTitle`** | The gov.ie default (green) service header with the app title. See `brief.md` decision log on the branding consideration (prototype, not a real gov.ie service). |
-| `<TodoInput>` | **Gov.ie `Input`** | Form input — design system covers this |
+| `<Header>` (bilingual gov.ie strip) | **Gov.ie `HeaderNext`** + custom `GovieBranding` | Two-bar header: top utility strip carries "Rialtas na hÉireann / Government of Ireland" with the harp + Gaeilge / English toggle; lower green bar is gov.ie `HeaderNext` with app title + theme toggle in the primary menu. Builder is an OGCIO service designer; using gov.ie's real service header is an explicit choice — see `brief.md` §9 (Day-1 entries). |
+| Language toggle (Gaeilge / English) | **Gov.ie `HeaderToolItemButton`** | Bound to `useI18n()` (Epic 10). |
+| Theme toggle (light / dark) | **Gov.ie `HeaderPrimaryMenu` + `HeaderMenuItemButton`** | Sun / moon glyphs are inline SVGs; gov.ie's curated `IconId` set doesn't ship them and that was the minimum-footprint path (Epic 12). |
+| Sidebar / mobile drawer | Custom (composes gov.ie `SideNav`, `SideNavItem`, `SideNavHeading`, `IconButton`) | Sidebar on `md+`, drawer below `md` via `useMediaQuery`. The original "Smart" heading was removed Day 1 to lift "All tasks" to the top of the rail (Epic 11). |
+| `<TodoInputBar>`, `<TodoInput>` | Custom (composition) over **gov.ie `Input` + `Button`** | |
 | `<TodoSubmitButton>` | **Gov.ie `Button`** (primary variant) | |
-| `Checkbox` (for todo completion) | **Gov.ie `Checkbox`** if available; else compose `<input type="checkbox">` with gov.ie token styling | Verify in Storybook day 1 |
-| `<TodoText>` | Custom (composition) | Just styled text; uses gov.ie typography utility classes |
-| `<TodoTimestamp>` | Custom (composition) | Same — small muted text using gov.ie token |
-| `<TodoDeleteAction>` | Custom | Combines a gov.ie icon button with our swipe behaviour |
-| `<TodoItem>` | Custom | Composes the above |
+| Checkbox (for todo completion) | **Gov.ie `Checkbox`** | Real `<input type="checkbox">` under the hood |
+| `<TodoText>`, `<TodoTimestamp>` | Custom (composition) | Gov.ie typography utility classes |
+| `<TodoItem>` | Custom | Composes the row: checkbox + text + action cluster |
+| Edit / Reorder up / Reorder down / Delete | Custom buttons over **gov.ie `IconButton`** | Each carries the bespoke `.list-action-btn` class to fix dark-mode text colour (see exception note above) |
+| `<TodoEditor>` | Custom (composition) over **gov.ie `Input`** | Inline editor for description + notes (Epic 07) |
+| `<ListSummary>` | Custom over **gov.ie `Button`** + outline button | "x of y completed" + Clear completed (flat) + Show / Hide (outline, `aria-pressed`) (Epic 11) |
+| `<ListControls>` | Custom over **gov.ie `Input`** | Free-text search across description + notes (Epic 07; flagged-only filter removed in Epic 11) |
 | `<TodoList>` | Custom | Layout container; no design system equivalent |
-| `<TodoInputBar>` | Custom (composition) | |
+| `<ConfirmModal>` | Custom over **gov.ie `ModalWrapper`** | Shared confirm dialog used by Clear completed and Delete list. We trust gov.ie's modal to supply the dialog ARIA semantics. (Epic 09 / 08) |
 | `<EmptyState>` | Custom (composition) | Uses gov.ie heading + body text tokens |
-| `<LoadingState>` | **Gov.ie skeleton if available**, else custom | See §2.2 |
-| `<ErrorState>` | **Gov.ie `Alert` / `ErrorMessage` if available**, else custom | Verify in Storybook day 1 |
+| `<LoadingState>` | Custom | Skeleton rows composed from gov.ie tokens. Gov.ie has no skeleton primitive as of build. |
+| `<ErrorState>` | Custom | Uses gov.ie token styling; `role="alert"` on the wrapper. Gov.ie has no `Alert` primitive that fits this surface. |
 | Retry button (in `<ErrorState>`) | **Gov.ie `Button`** (secondary variant) | |
-| `<UndoToast>` and container | Custom | See §2.2; uses gov.ie tokens throughout |
-| "Undo" button (in `<UndoToast>`) | **Gov.ie `Button`** (text/link variant) | |
+| `<UndoToast>` and container | Custom | Gov.ie tokens throughout; countdown bar is a CSS animation respecting `prefers-reduced-motion` |
+| "Undo" button (in `<UndoToast>`) | **Gov.ie `Button`** (flat variant) | |
 
-**Day-1 verification:** open the React Storybook and confirm presence/absence for Input, Button, Checkbox, Alert/ErrorMessage, and Skeleton. Update this table accordingly. If any component is missing that we'd rather not build custom, escalate before starting Epic 2.
+**Day-1 verification:** completed. Gov.ie shipped Input, Button, Checkbox, Icon, IconButton, ModalWrapper, HeaderNext, SideNav, and Tooltip used in v1. Skeleton and Toast / Alert were absent and live as custom components above.
 
 ---
 
 ## 4. Iconography
 
-The gov.ie design system likely includes its own icon set. Day-1 task: check `@ogcio/design-system-react` exports for icons and the Storybook for the catalogue. Where gov.ie supplies an icon (e.g. for delete, add, close, alert), use it.
+**Day-1 finding:** Gov.ie's `Icon` component renders via Material Symbols Outlined font ligatures (`<span class="material-symbols-outlined">{name}</span>`). The design system exports a curated `IconId` TypeScript type listing a few dozen names, but **doesn't ship the font itself** — without the font, every icon renders as its literal text name. We therefore self-host **`material-symbols`** (the canonical community-maintained npm package), imported once from `src/styles/globals.css`. See `brief.md` §9.
 
-For icons gov.ie doesn't supply, fall back to **Lucide React** at stroke-width `1.5`. Specific likely needs:
+Side effect: at runtime, gov.ie's `Icon` will render *any* valid Material Symbols Outlined name, not just the curated set in `IconId`. We use this only where the curated set has a clear gap — e.g. the "All tasks" sidebar entry was switched from the curated `apps` to the off-list `list` to better signal a list view. Each such escape is narrowed to a single named constant per use site (e.g. `ALL_TASKS_ICON` in `Sidebar.tsx`) so the deviation is auditable.
 
-- Trash / delete icon — gov.ie may or may not have one; if not, Lucide `Trash2`
-- Add / plus icon for submit button — gov.ie likely has one
+**No Lucide.** The Day-0 plan to fall back to Lucide React was retired Day 1 — Material Symbols Outlined covers everything we need, including delete (`delete`), add (`add_circle`), close (`close`), and the row-action cluster (`edit`, `arrow_upward`, `arrow_downward`, `more_horiz`, `visibility`, `visibility_off`).
 
-Always inherit colour via `currentColor` so icons follow their parent's text colour and we don't hardcode anything.
+The theme toggle's sun / moon are inline SVGs (Epic 12) — the smallest possible custom-icon footprint, since the gov.ie `IconId` set doesn't include them and dragging in a second font solely for two glyphs would be overkill.
+
+All icons inherit colour via `currentColor` so they follow their parent's text colour and we don't hardcode anything.
 
 ---
 
@@ -126,16 +134,17 @@ Use these strings as-is unless changed via a decision-log entry. Where the gov.i
 
 | Where | Copy |
 |---|---|
-| App title | `ListLens` *(placeholder — finalised by day 6)* |
-| Input placeholder | `Add a task` |
+| App title | `UX To-do list` *(finalised Day 1, replacing the working placeholder "ListLens")* |
+| Submit button label | `Add` |
 | Empty state heading | `Nothing to do.` |
 | Empty state helper *(optional)* | `Add one below.` |
 | Loading state | *(no text — skeleton only)* |
 | Error state heading | `Couldn't load your tasks.` |
 | Error state body | `Something went wrong on our side.` |
 | Error retry button | `Try again` |
-| Submit button label | `Add` |
 | Undo toast | `Deleted: "{description}"` + button `Undo` |
+
+All user-facing copy is sourced from the translation dictionary in `src/i18n/translations.ts` rather than hardcoded — both English and Irish (Gaeilge) strings live there. The strings above are the English originals; the Gaeilge versions follow the same plain-English tone in Irish.
 
 Note: we use "task" not "todo" in user-facing copy because it's the more natural government-context word; "todo" stays in code and docs.
 
@@ -174,21 +183,15 @@ For our purposes:
 
 ---
 
-## 9. Open questions deferred to implementation
+## 9. Resolved questions (formerly open)
 
-- **Skeleton component presence:** confirm in Storybook day 1. If missing, agree the custom skeleton approach in a decision-log entry.
-- **Toast pattern presence:** confirm. Likely absent — proceed with custom using gov.ie tokens.
-- **Reorder on completion:** v1 default is "stays in place." A grouped Completed section is a candidate addition, but the decision is deferred to **Story 5.4** — a 30-minute day-5 evaluation after living with the interaction for a few days. Don't pre-build the grouping; build the simplest version and let real use inform the call.
-- **Multi-toast stacking visual:** likely no gov.ie precedent. Cap at 3 visible stacked toasts; below that, behaviour is straightforward.
+- ~~**Skeleton component presence:** confirm in Storybook day 1.~~ **Resolved Day 1:** absent. Built custom skeleton rows using gov.ie tokens; entry above in §3.
+- ~~**Toast pattern presence:** confirm.~~ **Resolved Day 1:** absent. Built custom `UndoToast` with countdown bar using gov.ie tokens; entry above in §3.
+- ~~**Reorder on completion:**~~ **Resolved Day 1 (Story 5.4 + Epic 11):** the Day-5 evaluation kept "stays in place" as the default for v1. Epic 11 then superseded the question entirely by auto-hiding completed tasks by default with a Show / Hide toggle and a separate "Completed" smart view.
+- ~~**Multi-toast stacking visual:**~~ **Resolved Day 1:** capped at 3 visible stacked toasts via `UndoToastContainer`; queued toasts dismiss in FIFO order. No gov.ie precedent contradicted by this.
 
 ---
 
-## 10. Decision log additions (UX-specific)
+## 10. Decision log
 
-| Date | Decision | Rationale |
-|---|---|---|
-| Day 0 | Defer all visual tokens to the gov.ie design system | Honest re-use; no inventing what already exists in the canonical source |
-| Day 0 | Custom components only for gaps (swipe wrapper, undo toast, possibly skeleton) | Don't replicate work the design system already does |
-| Day 0 | Voice and tone follow gov.ie plain-English guidance | Matches the design system's existing standard; consistent with the OGCIO context |
-| Day 0 | User-facing copy uses "task" not "todo" | "Task" reads more naturally in a public-sector / workday context; "todo" stays in code and docs |
-| Day 0 | Day-1 verification step: open the React Storybook to confirm component availability before implementation | Avoids building custom code for components that already exist; flags gaps early |
+UX-side decisions are folded into the single canonical decision log in **`brief.md` §9** — keeping three log files in sync invites drift. The Day-0 UX entries (defer to gov.ie tokens, custom only for gaps, plain-English tone, "task" over "todo", verify Storybook first) and the Day-1 amendments (header swap to `HeaderNext`, completion-grouping decision, app rename, bilingual gov.ie strip, Material Symbols self-hosting, dark-mode override scope) all live there.

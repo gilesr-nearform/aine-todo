@@ -1,8 +1,10 @@
 # Architecture
 
-> **Owner:** Architect persona · **Status:** Locked for week 1 · **Last updated:** Week 1, Day 0
+> **Owner:** Architect persona · **Status:** Locked + iterated through Day 1 · **Last updated:** Week 1, Day 1 (post-Epic-12)
 >
 > **Companion doc:** `docs/component-inventory.md` — the components themselves. This document covers stack, state, data flow, and file structure.
+>
+> **Day-1 amendments:** §1 stack now lists `material-symbols` and `@fontsource/lato`; §2 file layout reflects Epics 06–12 (sidebar, i18n, theme, more); §3 globals.css example reflects the actual import set; §4 state shape now covers lists + filters + smart views; §10 "what's not in" notes the deployment exception; §11 commands updated; §12 decision log forwards to `brief.md` §9.
 
 ---
 
@@ -16,67 +18,88 @@
 | Styling | **Tailwind CSS** + **`@ogcio/design-system-tailwind`** + **`@ogcio/theme-govie`** | Tailwind preset bound to gov.ie tokens; theme package applies the govie skin |
 | Component library | **`@ogcio/design-system-react`** | Pre-built, accessible components from the gov.ie design system. Custom components only where the library has gaps (swipe-to-delete, undo toast). |
 | Tokens | **`@ogcio/design-system-tokens`** | Source of truth for colours, spacing, type, etc. Consumed via the Tailwind preset; no token values are duplicated in our code. |
-| Icons | Whatever the gov.ie design system uses internally; fall back to **Lucide React** for icons it doesn't include (`Trash2`, `Camera`, etc.) | Stay close to the design system; bridge only where needed |
+| Fonts | **`@fontsource/lato`** (gov.ie body font, self-hosted) + **`material-symbols`** (Material Symbols Outlined, self-hosted) | Gov.ie's `Icon` component renders icons via `<span class="material-symbols-outlined">` font ligatures, but the design system doesn't ship the font itself. We self-host the Material Symbols Outlined woff2 alongside Lato. See `brief.md` §9. |
+| Icons | **Gov.ie `Icon` component** (curated set in `@ogcio/design-system-react`) with **the full Material Symbols Outlined catalogue available at runtime** via the font fallback. We narrow casts in one place per use site (e.g. `ALL_TASKS_ICON` in `Sidebar.tsx`) so each escape outside the curated set is auditable. No Lucide. |
 | State | **React Context + useReducer** | Single source of truth; explicit action types make state transitions testable and spec-able. No external state library. |
-| Routing | **None** | Single-screen app per PRD |
-| Persistence | **`localStorage`** for surviving page reloads. Versioned key (`listlens:v1:todos`), graceful degradation on parse failure. See section 7. |
+| i18n | **Custom Context + dictionary** (English + Irish/Gaeilge); language preference persisted under `listlens:v1:lang`. No `i18next` dependency — ~80 strings doesn't justify it. See Epic 10 and `brief.md` §9. |
+| Theme | **Gov.ie's `data-theme` selector** (`govie-light` / `govie-dark`), with a scoped exception that overrides gov.ie's neutral/gray primitives in dark mode (gov.ie's `dark.css` ships byte-identical to `light.css` as of build). Theme preference persisted under `listlens:v1:theme`. See Epic 12 and `brief.md` §9. |
+| Routing | **None** | Single-screen app per PRD; sidebar / drawer navigation is client-state only |
+| Persistence | **`localStorage`** for surviving page reloads. Three versioned keys: `listlens:v2:state` (lists + todos + view-state), `listlens:v1:lang`, `listlens:v1:theme`. Graceful degradation on parse failure. See section 7. |
 | Animation | **CSS transitions + `prefers-reduced-motion`** | No animation library; gov.ie tokens supply duration / easing values where defined |
-| Testing | **Manual smoke testing** of every UI state. Optional: one Vitest smoke test if time allows. Not a required deliverable. |
-| Linting | **ESLint** (Vite default + gov.ie's lint config if available) + **Prettier** |
-| Package manager | **pnpm** preferred (matches the gov.ie design system's own tooling) |
+| Deployment | **GitHub Pages via Actions** (`.github/workflows/deploy.yml`), auto-publishes `main` on push. Scoped exception to the Day-0 "no deployment" rule — see `brief.md` §9. |
+| Testing | **Manual smoke testing** of every UI state + Playwright-style live verification via the in-IDE browser MCP. No Vitest harness in v1. |
+| Linting | **ESLint** + **Prettier** |
+| Package manager | **pnpm** (matches the gov.ie design system's own tooling) |
 
 ## 2. File and folder structure
 
+Reflects the codebase as it stands after Epic 12.
+
 ```
-listlens/
-├── docs/                       # BMAD artifacts (this folder)
-│   ├── brief.md
-│   ├── prd.md
+aine-todo/
+├── docs/                       # BMAD artifacts
+│   ├── brief.md                # Analyst output + decision log (§9 is the canonical decision log)
+│   ├── prd.md                  # PRD forwarding stub (real PRD is the training one, outside repo)
 │   ├── architecture.md         # this file
 │   ├── component-inventory.md
 │   ├── ux-spec.md
-│   ├── stories/                # individual UI-focused stories
-│   └── decisions/              # ADRs for non-trivial choices
-├── public/                     # static assets
+│   └── stories/                # epic specs: 01-foundation … 12-theme-switcher
+├── .github/
+│   └── workflows/
+│       └── deploy.yml          # GitHub Pages auto-deploy on push to main
 ├── src/
-│   ├── components/             # custom components only (i.e. those NOT in @ogcio/design-system-react)
-│   │   ├── AppShell/
-│   │   ├── TodoList/
-│   │   ├── TodoItem/           # custom because gov.ie probably doesn't have a "todo row" component
+│   ├── components/             # custom components only (gov.ie components imported directly)
+│   │   ├── AppShell/           # AppShell, Header (incl. bilingual gov.ie strip), GovieBranding, MainContent, ThemeToggle
+│   │   ├── Sidebar/            # desktop Sidebar + MobileNav drawer
+│   │   ├── TodoList/           # list pane: header, summary, filter controls, items
+│   │   ├── TodoItem/
+│   │   ├── TodoEditor/         # inline edit (description + notes)
 │   │   ├── TodoInputBar/
-│   │   ├── UndoToast/          # custom — gov.ie design system unlikely to have an undo pattern
+│   │   ├── TodoReorderActions/ # up/down icon buttons per row
+│   │   ├── TodoDeleteAction/   # delete icon button per row
+│   │   ├── ListSummary/        # x of y completed + clear-completed + hide/show
+│   │   ├── ListControls/       # search + filter affordances
+│   │   ├── ConfirmModal/       # shared confirm dialog (clear-completed, delete-list)
+│   │   ├── UndoToast/          # destructive-action undo with countdown
+│   │   ├── EmptyState/
 │   │   ├── LoadingState/
-│   │   ├── ErrorState/
-│   │   └── EmptyState/
+│   │   └── ErrorState/
 │   ├── state/
-│   │   ├── todosReducer.ts     # the reducer
-│   │   ├── TodosContext.tsx    # context provider + hook
-│   │   └── types.ts            # Todo, AppState, Action types
+│   │   ├── todosReducer.ts     # the reducer (all actions land here)
+│   │   ├── TodosContext.tsx    # context provider + hook + persistence effect
+│   │   ├── storage.ts          # localStorage read/write + v1→v2 migration
+│   │   └── types.ts            # Todo, List, AppState, Action types
+│   ├── i18n/
+│   │   ├── I18nContext.tsx     # language Context + useT() hook + ICU-ish interp
+│   │   └── translations.ts     # en + ga dictionaries
+│   ├── theme/
+│   │   └── ThemeContext.tsx    # light/dark theme Context + useTheme() hook
 │   ├── mocks/
 │   │   ├── initialLoad.ts      # simulated initial-fetch with delay + 10% failure
-│   │   └── devTriggers.ts      # force-error and instant-load flags, documented in README
-│   ├── hooks/                  # custom hooks (e.g. useUndoTimer)
-│   ├── utils/                  # formatters, id generation, etc.
-│   ├── styles/                 # global CSS (Tailwind base + gov.ie theme imports)
-│   │   └── globals.css
-│   ├── App.tsx                 # composes the AppShell, wires the provider, applies gov.ie theme
+│   │   └── devTriggers.ts      # window.__forceError + window.__instant
+│   ├── hooks/                  # useMediaQuery, useUndoTimer
+│   ├── utils/                  # formatters, todoCounts, etc.
+│   ├── styles/
+│   │   └── globals.css         # gov.ie theme imports + Tailwind + Material Symbols + dark overrides
+│   ├── App.tsx                 # composes ThemeProvider > I18nProvider > TodosProvider > AppShell
 │   ├── main.tsx                # Vite entrypoint
 │   └── vite-env.d.ts
 ├── .cursor/
 │   └── rules/
-│       └── project.mdc         # Cursor agent rules
+│       └── project.mdc         # Cursor agent rules (mirrors CLAUDE.md)
 ├── CLAUDE.md                   # Claude Code agent rules
-├── README.md                   # how-to-run + AI integration notes (graded deliverable)
+├── README.md                   # how-to-run + live URL + AI integration notes (graded deliverable)
+├── index.html                  # Vite entry HTML; document <title>
 ├── package.json
 ├── tsconfig.json
-├── tailwind.config.ts          # extends @ogcio/design-system-tailwind preset
+├── tailwind.config.ts          # extends @ogcio/design-system-tailwind preset; darkMode selector
 ├── postcss.config.js
 └── vite.config.ts
 ```
 
 **Rationale for the layout:**
-- `components/` houses *custom* components only. Gov.ie components are imported directly from `@ogcio/design-system-react` — we don't wrap them unless adding meaningful local behaviour. This keeps it obvious which components are ours vs. provided.
-- `state/` is its own folder so the reducer logic is easy to find and read independently.
+- `components/` houses *custom* components only. Gov.ie components are imported directly from `@ogcio/design-system-react` — we don't wrap them unless adding meaningful local behaviour. This keeps it obvious which components are ours vs provided.
+- `state/`, `i18n/`, `theme/` are each their own folder so the cross-cutting plumbing (reducer, dictionary, theme attribute writer) is easy to find and read independently.
 - `mocks/` is isolated from the rest of the code so it's obvious where the "fakeness" lives.
 
 ## 3. Installing the gov.ie design system
@@ -111,16 +134,22 @@ To extend or override, pass options to `createTheme({ overrides: { extend: { ...
 
 ### 3.3 Global CSS
 
-The `@ogcio/design-system-tokens` package only ships JS exports — there is no `tokens.css` to import. CSS variables come from `@ogcio/theme-govie`; component CSS comes from `@ogcio/design-system-react`. This matches the gov.ie React README and the official Vite reference example.
+The `@ogcio/design-system-tokens` package only ships JS exports — there is no `tokens.css` to import. CSS variables come from `@ogcio/theme-govie`; component CSS comes from `@ogcio/design-system-react`. The `material-symbols` package ships the Material Symbols Outlined font CSS gov.ie's `Icon` API depends on (gov.ie doesn't ship it itself).
 
 ```css
 /* src/styles/globals.css */
-@import '@ogcio/theme-govie/theme.css';
+@import '@ogcio/theme-govie/light.css';
+@import '@ogcio/theme-govie/dark.css';
 @import '@ogcio/design-system-react/styles.css';
+@import 'material-symbols/outlined.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Dark-mode token overrides under [data-theme='govie-dark'] — */
+/* scoped exception to "never override gov.ie tokens", see brief.md §9. */
+/* Applies only to neutral/gray primitives; brand + intent tokens untouched. */
 ```
 
 Import this file once from `src/main.tsx`.
@@ -149,21 +178,34 @@ Single source of truth: a `TodosContext` that wraps the app and exposes the curr
 
 ### 4.1 State shape
 
+Reflects the codebase after Epics 07, 08, and 11. The Day-0 single-list shape was migrated to a multi-list envelope under `listlens:v2:state` (see §7 and Epic 08).
+
 ```ts
 type LoadStatus = 'idle' | 'loading' | 'success' | 'error';
+type SmartView = 'all' | 'completed';
 
 interface AppState {
-  status: LoadStatus;            // controls which UI state renders on mount
-  todos: Todo[];                 // the current visible list
-  recentlyDeleted: DeletedRecord[]; // powers undo
+  status: LoadStatus;                   // controls which UI state renders on mount
+  lists: List[];                        // user lists, ordered
+  todos: Todo[];                        // every todo across every list (todo.listId is the link)
+  activeListId: ListId | null;          // null + activeSmartView select a smart view
+  activeSmartView: SmartView;           // 'all' or 'completed' when activeListId === null
+  filters: {
+    search: string;                     // free-text search, not persisted
+    showCompleted: boolean;             // persisted; defaults to false post-Epic-11
+  };
+  recentlyDeleted: DeletedRecord[];     // in-memory only; powers undo
+  editingTodoId: TodoId | null;         // inline editor target
 }
 
 interface DeletedRecord {
   todo: Todo;
-  originalIndex: number;         // restores to its prior position on undo
-  expiresAt: number;             // epoch ms; toast disappears after this
+  originalIndex: number;                // restores to its prior position on undo
+  expiresAt: number;                    // epoch ms; toast disappears after this
 }
 ```
+
+Language and theme live in their own Contexts and `localStorage` keys (`listlens:v1:lang`, `listlens:v1:theme`) — presentation rather than domain. See `src/i18n/I18nContext.tsx` and `src/theme/ThemeContext.tsx`.
 
 ### 4.2 Actions
 
@@ -180,17 +222,19 @@ The reducer handles exactly these actions. Adding a new one is a decision-log en
 | `DELETE_TODO` | `{ id: TodoId }` | Removes the todo from `todos`, pushes a `DeletedRecord` onto `recentlyDeleted` |
 | `UNDO_DELETE` | `{ id: TodoId }` | Restores the todo from `recentlyDeleted` to its `originalIndex` in `todos` |
 | `EXPIRE_DELETED` | `{ id: TodoId }` | Removes a `DeletedRecord` from `recentlyDeleted` (after the toast's undo window closes) |
-| `REORDER_TODO` | `{ id: TodoId, direction: 'up' \| 'down' }` | Swaps the todo with its neighbour in `todos`. No-op if already at the boundary. Added in Epic 06 — see `brief.md` §9. |
+| `REORDER_TODO` | `{ id: TodoId, direction: 'up' \| 'down' }` | Swaps the todo with its nearest **visible** same-list neighbour in `todos`. Skips both other-list rows and hidden-completed rows (when `showCompleted` is false). No-op at the visible boundary. Added in Epic 06; refined in Epic 11 — see `brief.md` §9. |
 | `UPDATE_TODO` | `{ id: TodoId, description: string, notes?: string }` | Updates description and notes for a single todo. Trims both. No-op if trimmed description is empty. Added in Epic 07. |
-| `TOGGLE_FLAG` | `{ id: TodoId }` | Inverts the `flagged` boolean on the todo. Added in Epic 07. |
+| `START_EDIT` / `STOP_EDIT` | `{ id: TodoId }` / — | Opens / closes the inline editor for a todo. Added in Epic 07. |
 | `SET_SEARCH` | `{ value: string }` | Updates `filters.search`. Not persisted. Added in Epic 07. |
-| `SET_FLAGGED_ONLY` | `{ value: boolean }` | Updates `filters.flaggedOnly`. Not persisted. Added in Epic 07. |
-| `SET_SHOW_COMPLETED` | `{ value: boolean }` | Updates `filters.showCompleted`. Not persisted. Added in Epic 07. |
+| `SET_SHOW_COMPLETED` | `{ value: boolean }` | Updates `filters.showCompleted`. Persisted post-Epic-11; defaults to `false`. |
+| `SET_SMART_VIEW` | `{ view: SmartView }` | Switches between the "All tasks" and "Completed" smart views. Implies `activeListId = null`. Added in Epic 11. |
 | `CREATE_LIST` | `{ name: string }` | Creates a new `List` with the trimmed name and a fresh UUID, appends to `lists`, sets `activeListId` to the new list. No-op if name is empty. Added in Epic 08. |
 | `RENAME_LIST` | `{ id: ListId, name: string }` | Trims and updates the list's name. No-op if name is empty. Added in Epic 08. |
 | `DELETE_LIST` | `{ id: ListId }` | Removes the list and every todo belonging to it. If the deleted list was active, falls back to `activeListId: null`. Added in Epic 08. |
-| `SET_ACTIVE_LIST` | `{ id: ListId \| null }` | Sets the active list. `null` selects the "All tasks" smart list. Added in Epic 08. |
-| `CLEAR_COMPLETED` | `{ listId: ListId \| null }` | Removes every completed todo in the given list. `null` clears completed across all lists. No undo (irreversible bulk delete behind a `confirm()`). Added in Epic 09. |
+| `SET_ACTIVE_LIST` | `{ id: ListId \| null }` | Sets the active list. `null` selects a smart view (per `activeSmartView`). Added in Epic 08. |
+| `CLEAR_COMPLETED` | `{ listId: ListId \| null }` | Removes every completed todo in the given list. `null` clears completed across all lists. Surfaced behind a `ConfirmModal`, no undo. Added in Epic 09 (rolled into Epic 08's spec). |
+
+**Removed actions:** `TOGGLE_FLAG` and `SET_FLAGGED_ONLY` (Epic 07) were deleted in Epic 11 along with the entire flag feature surface (Todo.flagged field, FlagIcon component, amber border, flagged-only filter button, related translation keys). See `docs/stories/11-completion-flow-tightening.md` and `brief.md` §9.
 
 ### 4.3 Why a reducer (vs. plain useState)
 
@@ -257,37 +301,36 @@ function loadInitialTodos(): Promise<Todo[]> {
 
 ## 7. Persistence via `localStorage`
 
-Required for v1. Implemented in Story 1.4. Three rules:
+Required for v1. Originally implemented in Story 1.4 against a single `listlens:v1:todos` array; migrated in Epic 08 to a multi-list envelope under `listlens:v2:state`. Three rules still hold:
 
-1. **Versioned key.** Store under `listlens:v1:todos` so a future schema change doesn't break things. Future versions get new keys; nothing migrates implicitly.
-2. **Graceful degradation.** Wrap every read and write in `try`/`catch`. Parse failures, quota-exceeded errors, and missing entries all log a console warning and fall through to "empty array." The user sees the empty state, never an error caused by storage.
-3. **Don't persist what shouldn't survive a session.** `recentlyDeleted` is in-memory only — there's no sensible interpretation of "undo a task you deleted yesterday." Same for `status` (which is reset on every mount anyway).
+1. **Versioned keys.** Three independent keys, each carrying its own version:
+   - `listlens:v2:state` — `{ lists, todos, activeListId, activeSmartView, filters.showCompleted }`. The v1→v2 read path silently migrates any legacy `listlens:v1:todos` array onto a default "Tasks" list and deletes the v1 key. See `src/state/storage.ts`.
+   - `listlens:v1:lang` — `'en' | 'ga'`.
+   - `listlens:v1:theme` — `'light' | 'dark'`.
+2. **Graceful degradation.** Every read and write is wrapped in `try`/`catch`. Parse failures, quota-exceeded errors, and missing entries log a console warning and fall through to the empty / default state. The user sees the empty state, never an error caused by storage.
+3. **Don't persist what shouldn't survive a session.** `recentlyDeleted`, `status`, `editingTodoId`, and `filters.search` are in-memory only. Undoing a delete from yesterday, restoring a load-error state, or keeping yesterday's search query open have no sensible meaning.
 
 ### 7.1 Read path
 
-```ts
-// pseudo-spec, full impl in src/mocks/initialLoad.ts
-function loadInitialTodos(): Promise<Todo[]> {
-  if (window.__instant) return Promise.resolve(readFromStorage());
-  return new Promise((resolve, reject) => {
-    const delay = 600 + Math.random() * 300;
-    setTimeout(() => {
-      const shouldFail = window.__forceError || Math.random() < 0.1;
-      shouldFail ? reject(new Error('Simulated load failure')) : resolve(readFromStorage());
-    }, delay);
-  });
-}
+Full implementation in `src/state/storage.ts`. Shape (post-Epic-08):
 
-function readFromStorage(): Todo[] {
+```ts
+function readFromStorage(): PersistedState | null {
   try {
-    const raw = localStorage.getItem('listlens:v1:todos');
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    // Revive Date objects from ISO strings
-    return parsed.map(t => ({ ...t, createdAt: new Date(t.createdAt) }));
+    const raw = localStorage.getItem('listlens:v2:state');
+    if (raw) return parseAndReviveDates(raw);
+    // Fallback: migrate the legacy single-list v1 array into a v2 envelope.
+    const legacy = localStorage.getItem('listlens:v1:todos');
+    if (legacy) {
+      const migrated = migrateV1ToV2(legacy);
+      localStorage.setItem('listlens:v2:state', JSON.stringify(migrated));
+      localStorage.removeItem('listlens:v1:todos');
+      return migrated;
+    }
+    return null;
   } catch (err) {
-    console.warn('Failed to read todos from localStorage:', err);
-    return [];
+    console.warn('Failed to read state from localStorage:', err);
+    return null;
   }
 }
 ```
@@ -296,17 +339,7 @@ The simulated load delay is **preserved even when localStorage is populated**. T
 
 ### 7.2 Write path
 
-The provider's `useReducer` is wrapped with a `useEffect` that writes `state.todos` to localStorage whenever it changes. JSON.stringify handles Date objects via their default ISO serialisation; the read path revives them.
-
-```ts
-useEffect(() => {
-  try {
-    localStorage.setItem('listlens:v1:todos', JSON.stringify(state.todos));
-  } catch (err) {
-    console.warn('Failed to write todos to localStorage:', err);
-  }
-}, [state.todos]);
-```
+The provider's `useReducer` is wrapped with a `useEffect` that writes the persisted slice of state to localStorage whenever it changes. JSON.stringify handles Date objects via their default ISO serialisation; the read path revives them. Only the fields that should survive a reload are written (see Rule 3 above).
 
 ## 8. Accessibility baseline
 
@@ -337,38 +370,33 @@ To match the brief's scope discipline, the architecture deliberately excludes:
 
 - Backend / API client code (no `src/api/`)
 - Authentication, session, user model
-- Database, ORM, persistence layer
-- Routing, navigation, deep-linking
+- Database, ORM, server-side persistence
+- Client routing, deep-linking, URL state
 - Service workers, offline support, PWA manifest
 - Analytics, telemetry, error reporting
-- i18n / localisation
-- Theme switching (light/dark) — gov.ie theme light only for v1
 - Real AI / vision / OCR
 - Photo-scanning (moved to v2 per brief §10)
 
-## 11. Build / dev / lint commands
+**Originally excluded but added Day 1** (each as a scoped exception with decision-log entries in `brief.md` §9):
 
-To be confirmed once scaffolded on day 1.
+- **i18n** (Epic 10) — English + Irish, custom Context + dictionary, no `i18next` dep.
+- **Theme switching (light + dark)** (Epic 12) — via gov.ie's `data-theme` attribute, with a scoped dark-mode override of gov.ie's neutral/gray primitives.
+- **Deployment** — GitHub Pages auto-deploy of `main` via Actions. Static build artifact only; no backend introduced.
+
+## 11. Build / dev / lint / deploy commands
 
 ```bash
-pnpm install
-pnpm dev      # vite dev server with HMR
-pnpm build    # production build (we won't deploy, but the build must succeed)
-pnpm preview  # preview the production build locally
-pnpm lint
-pnpm format   # prettier --write
+pnpm install        # install deps (Node 20+)
+pnpm dev            # vite dev server with HMR at localhost:5173
+pnpm build          # tsc -b && vite build  →  dist/
+pnpm preview        # serve the production build locally
+pnpm lint           # eslint over src/
+pnpm format         # prettier --write
+pnpm format:check   # prettier --check (CI-style)
 ```
 
-## 12. Decision log additions (architecture-specific)
+Deployment is automatic: every push to `main` triggers `.github/workflows/deploy.yml`, which runs the build with `--base=/<repo-name>/` and publishes `dist/` to GitHub Pages. The live URL is `https://gilesr-nearform.github.io/aine-todo/`.
 
-| Date | Decision | Rationale |
-|---|---|---|
-| Day 0 | Vite over Next.js | No SSR / routing / server-action needs; gov.ie design system has a Vite example, so integration is proven |
-| Day 0 | Adopt gov.ie design system (`@ogcio/*` packages) over shadcn/ui | Aligns with the OGCIO context; demonstrates design-system literacy; removes a class of from-scratch token decisions; accessibility built in |
-| Day 0 | Custom components only for gaps in the design system (swipe-to-delete, undo toast) | Honest re-use of the design system; custom work only where the system has no equivalent |
-| Day 0 | React Context + useReducer over a state library | Single state slice; no need for Redux / Zustand; Context handles cross-component access without a dependency |
-| Day 0 | Mock data lives in dedicated `src/mocks/` directory | Honest visual boundary between real code and simulated behaviour |
-| Day 0 | Dev triggers (`window.__forceError`, `window.__instant`) documented in the README | Lets the assessor reproduce any UI state deterministically |
-| Day 0 | No animation library for v1 | CSS transitions are sufficient for the interactions in scope; gov.ie tokens supply duration/easing values where defined |
-| Day 0 | `localStorage` persistence required (Story 1.4), not optional polish | Brain-dump-once-a-day usage means losing the tab loses your work; persistence is core to the use case |
-| Day 0 | Versioned localStorage key (`listlens:v1:todos`); no implicit migration | Forces explicit thought when schema changes; no surprise behaviour |
+## 12. Decision log
+
+Architecture-side decisions live alongside product and UX decisions in **`brief.md` §9**. Maintaining a single canonical decision log avoids three out-of-sync copies. The architecture-relevant Day-1 amendments (Tailwind v3 pin, `createTheme` usage, theme-package CSS paths, storage v1→v2 migration, Material Symbols self-hosting, theme override scope, deployment exception) are all there.

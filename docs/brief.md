@@ -1,10 +1,12 @@
 # Project Brief
 
-> **Owner:** Analyst persona · **Status:** Locked for week 1 · **Last updated:** Week 1, Day 0
+> **Owner:** Analyst persona · **Status:** Locked + iterated through Day 1 · **Last updated:** Week 1, Day 1 (post-Epic-12, post-deploy)
 >
 > **Training context:** Submitted as part of an AI training programme on Spec-Driven Development (SDD), using the BMAD Framework with Cursor + Claude Code. The official training PRD is the source of truth for scope. This brief is the Analyst-persona output sitting alongside it.
 >
-> **Working name:** ListLens *(placeholder — finalised in section 8)*
+> **Name:** UX To-do list *(working name "ListLens" was retired Day 1 — see §8 and §9. The `listlens:` `localStorage` prefix is a stable storage identifier and intentionally preserved.)*
+>
+> **Live URL:** https://gilesr-nearform.github.io/aine-todo/ *(GitHub Pages auto-deploy from `main` — Day-1 scoped exception, see §9.)*
 
 ---
 
@@ -47,14 +49,14 @@ This is, frankly, the builder of this app. We're not pretending otherwise: build
 
 The POC succeeds if all of these are true. The first four come directly from the training-programme success criteria.
 
-- [ ] **Prototype coverage:** Create, complete, delete, and empty state are all implemented and polished
-- [ ] **BMAD artifacts:** Brief, PRD refinement, component inventory, and user stories with UI-focused acceptance criteria are all written and committed
-- [ ] **Responsive design:** Prototype works well on desktop *and* mobile breakpoints
-- [ ] **Documentation:** README explains how BMAD and Cursor were used together, what was learned, and how to run the prototype locally
-- [ ] All four required UI states feel **polished, not placeholder**: empty, loading, error, populated
-- [ ] All interaction states are present on every interactive component: hover, focus, active, disabled
-- [ ] The app visibly uses the Government of Ireland Design System: components from `@ogcio/design-system-react`, tokens from `@ogcio/design-system-tokens`, the `@ogcio/theme-govie` theme applied
-- [ ] Completed tasks are visually distinguishable from active ones at a glance
+- [x] **Prototype coverage:** Create, complete, delete, and empty state are all implemented and polished
+- [x] **BMAD artifacts:** Brief, PRD refinement, component inventory, and user stories with UI-focused acceptance criteria are all written and committed
+- [x] **Responsive design:** Prototype works well on desktop *and* mobile breakpoints (sidebar collapses to drawer below `md`)
+- [x] **Documentation:** README explains how BMAD and Cursor were used together, what was learned, and how to run the prototype locally
+- [x] All four required UI states feel **polished, not placeholder**: empty, loading, error, populated
+- [x] All interaction states are present on every interactive component: hover, focus, active, disabled
+- [x] The app visibly uses the Government of Ireland Design System: components from `@ogcio/design-system-react`, tokens from `@ogcio/design-system-tokens`, the `@ogcio/theme-govie` theme applied
+- [x] Completed tasks are visually distinguishable from active ones at a glance (auto-hidden by default in Epic 11; strikethrough + checkbox state when visible)
 
 ## 5. Scope
 
@@ -62,11 +64,13 @@ The POC succeeds if all of these are true. The first four come directly from the
 The four core actions per the official PRD:
 - **Create** a todo via typed input (description, completion status defaults to `false`, creation timestamp set automatically)
 - **View** the current list of todos
-- **Complete / un-complete** a todo
-- **Delete** a todo
-- **Reorder** tasks via up/down buttons (added Day 1 as a scope expansion — see §9 decision log)
-- **Notes, flags, and filters** — second-line notes per task, flag toggle, search/show-completed/flagged-only filters (Epic 07, see §9 decision log)
-- **Multiple lists** — create/rename/delete lists, sidebar on desktop and drawer on mobile, "All tasks" smart list, storage migration (Epic 08, see §9 decision log)
+- **Complete / un-complete** a todo (auto-hides on completion by default, Epic 11)
+- **Delete** a todo (with undo toast, Epic 03)
+- **Reorder** tasks via up/down buttons (Epic 06 — scope expansion logged in §9)
+- **Notes and search filter** — second-line notes per task, free-text search across description + notes (Epic 07; the flag feature shipped here was removed in Epic 11)
+- **Multiple lists** — create / rename / delete lists, sidebar on desktop and drawer on mobile, "All tasks" + "Completed" smart views, v1→v2 `localStorage` migration (Epic 08)
+- **Bilingual gov.ie header** — two-bar gov.ie identity strip, harp logo, English ↔ Gaeilge toggle translating the entire app UI (Epic 10)
+- **Light + dark theme** — sun / moon toggle in the header, persists across reloads, follows `prefers-color-scheme` on first paint (Epic 12)
 
 Plus, per the official PRD's explicit instructions:
 - All four UI states: empty, loading, error, populated
@@ -97,7 +101,8 @@ Per our own discipline:
 - Real AI or vision API calls
 - Exports (no `.ics`, no copy-as-table)
 - Integrations with Apple Reminders / Google Tasks / anything else
-- PWA install or deployment to a public URL
+- PWA install
+- ~~Deployment to a public URL~~ — **opened Day 1 as a scoped exception** (assessment-link use case). Static build only, no backend. See §9. The default rule "runs locally per training brief" still applies to anything beyond a static deploy.
 - Onboarding flows
 - Analytics or tracking
 
@@ -121,8 +126,9 @@ Per our own discipline:
 
 ## 8. Open questions
 
-- **App name** — `ListLens` is a working placeholder. Maybe something more workday-feeling? Decide by day 6.
-- **Gov.ie component coverage** — verify on day 1 in the React Storybook that the design system covers: Button, Input, Checkbox, error message component. Custom components needed for: swipe-to-delete on mobile, undo toast (likely — design system may not include destructive-action undo flows).
+- ~~**App name** — `ListLens` is a working placeholder. Maybe something more workday-feeling? Decide by day 6.~~ **Resolved Day 1:** retired "ListLens" in favour of "UX To-do list" — plainer-English, sentence-case, gov.ie tone. Decision-log entry in §9. The `listlens:` `localStorage` prefix is kept as a stable storage identifier, since renaming it would invalidate every persisted user's state without buying anything.
+- ~~**Gov.ie component coverage** — verify on day 1 in the React Storybook that the design system covers: Button, Input, Checkbox, error message component.~~ **Resolved Day 1:** verified. Custom components built only where gov.ie has no equivalent (`UndoToast`, `ConfirmModal`, `TodoEditor`, the timer-bar countdown, `MobileNav` drawer composition).
+- **Material Symbols footprint** — the self-hosted woff2 is ~3.9MB unsubsetted. For a v2 / production pass, subset to the ~12 glyphs the app actually uses to drop the asset to <50kB. Out of scope for v1 deliverable but flagged in §10 v2 considerations.
 
 ## 9. Decision log
 
@@ -151,6 +157,7 @@ Per our own discipline:
 | Day 1 | Reorder added to v1 scope as a 6th epic, despite the official training PRD excluding "Filtering or sorting" | Builder (a service designer using the app for their own workday) found that without reorder the list felt static — important tasks couldn't migrate up as priorities shifted, and "completed stays in place" (the Day-0 default) makes the order question more pressing, not less. Implementing reorder via up/down buttons (not drag) preserves the WCAG 2.5.7 baseline from `architecture.md` §8 and is a small reducer + UI addition. This expansion is recorded *because* the SDD demonstration values transparent scope decisions over silent scope creep — the cost is being explicit, the benefit is the v1 actually fits the use case. Epic 06 spec authored before any implementation. |
 | Day 1 | App header swapped from custom composition to gov.ie `HeaderNext` (green default variant) | Original `ux-spec.md` §3 entry called for a custom header to avoid the prototype reading as a real gov.ie service. Builder (a service designer at OGCIO) explicitly opted in to the gov.ie green bar to strengthen the "visibly uses the design system" graded deliverable. The training-programme context makes the impersonation risk acceptable — the assessor sees this is a personal-prototype context. If this app were ever deployed publicly, the header should revert to a custom composition. `ux-spec.md` §3 row updated to match. |
 | Day 1 | Completed todos **stay in place** for v1 (Story 5.4 default kept) | The Day-0 default was "build stays-in-place first, evaluate on day 5." The day-5 evaluation requires at least 2 days of real use with realistic content, which has not yet happened. The default is therefore retained for v1. If a user evaluation surfaces friction, Story 5.4's grouped-completed-section path remains an option without architectural rework: it's a render-time grouping of `state.todos`, not a state-shape change. |
+| Day 1 | App name finalised: "UX To-do list" (working name "ListLens" retired) | The Day-0 working name "ListLens" was placeholder framing during the initial spec pass. After implementation completed and the prototype had a recognisable voice, the builder picked "UX To-do list" — plainer-English, sentence-case, gov.ie tone, accurately describes what the thing is. The rename is purely cosmetic: applied to the document `<title>`, the gov.ie `HeaderTitle`, the `header.title` / `header.siteAria` translation strings in both `en` and `ga`, the project's README heading, and the `name` field in `package.json`. The internal `listlens:` `localStorage` key prefix (`listlens:v2:state`, `listlens:v1:lang`, `listlens:v1:theme`) is deliberately not renamed — it's a stable storage identifier and a rename would invalidate every persisted user's state for no functional gain. The hard rule "do not rename the `listlens:` storage prefix" is recorded in `CLAUDE.md` and `.cursor/rules/project.mdc`. |
 | Day 1 | GitHub Pages auto-deploy of `main` via Actions, as a scoped exception to the Day-0 "no deployment" decision | The Day-0 decision was "No deployment, no PWA, no exports, no integrations in v1 — out of scope per the training brief (runs locally, uses mock data)." After implementation completed, the builder needed to share the prototype with a reviewer for the AI-training programme assessment. The three review-path options were (a) clone-and-run locally — highest friction for the reviewer, (b) GitHub Codespaces — zero install but still requires the reviewer to start the dev server in a VS Code session, (c) a public live URL — one link, no setup for the reviewer. Option (c) was chosen explicitly for the assessment use case. The deployment is scoped to publishing the static build artifact to GitHub Pages from a workflow file (`.github/workflows/deploy.yml`); no backend, no analytics, no real APIs are introduced. The Vite build is invoked with `--base=/<repo-name>/` so asset URLs resolve under the GitHub Pages sub-path; the dev config is untouched (`pnpm dev` still serves from `/`). The published URL is `https://gilesr-nearform.github.io/aine-todo/`. If the brief context ever changed and "runs locally only" was reinstated as a hard constraint, the workflow file deletes in one commit with no other code changes required. |
 | Day 1 | Material Symbols Outlined font self-hosted via the `material-symbols` npm package, and the sidebar's "All tasks" entry switched from `apps` to `list` | The gov.ie `Icon` component renders most of its curated icon names (including `apps`, `add_circle`, `more_horiz`, `edit`, `delete`, `menu`) via a `<span class="material-symbols-outlined">` ligature span — but neither `@ogcio/theme-govie` nor `@ogcio/design-system-react` ships the actual Material Symbols Outlined font. The result, before this fix, was that the design system's own icon API rendered the icon *name* as plain text in any browser without the font installed locally. First attempt loaded the font from Google's CDN with `preconnect` + `display=block`, but the runtime environment (Cursor's in-IDE browser, and likely any sandboxed preview) blocks external font requests, so zero glyphs ever rendered. Switched to the `material-symbols` npm package — the canonical community-maintained package, just CSS + woff2 — and imported `material-symbols/outlined.css` from `src/styles/globals.css`. This matches the project's existing self-hosted-font pattern (`@fontsource/lato` is already a dependency for the same reason). The font asset is ~340kB and ships alongside the bundle. Side effect: the runtime now accepts any valid Material Symbols name (the design system's `IconId` TypeScript type is narrower than the runtime accepts), which the user asked for to give the "All tasks" sidebar entry a list glyph that visually echoes the Apple Reminders icon. The cast to `IconId` is narrowed to one named constant `ALL_TASKS_ICON` in `Sidebar.tsx` so the escape hatch is auditable. New dependency `material-symbols` recorded here per the "No new dependencies without checking docs/architecture.md" rule — justified because it's required to make the existing gov.ie Icon API work at all (without it the design system's own curated icons render as their literal text names). |
 | Day 1 | Epic 12 added — theme switcher (light + dark) — and a scoped exception to the "never override gov.ie token values" rule | User asked for a theme switcher in the top right of the green header. Gov.ie publishes `[data-theme="govie-light"]` and `[data-theme="govie-dark"]` selector sheets, so the application-level switch is officially supported via a single attribute on `<html>`. **However**, as of build, `@ogcio/theme-govie/dark.css` is byte-identical to `light.css` aside from the selector — gov.ie hasn't published real dark token values yet. To deliver an actually dark appearance we therefore override gov.ie's neutral primitives and gray scale ourselves under `[data-theme="govie-dark"]` in `src/styles/globals.css` (inverted scale: `gray-50` becomes near-black, `gray-950` becomes near-white, `neutral-white` becomes near-black). This is a deliberate, scoped exception to the project rule "never override gov.ie token values" (`CLAUDE.md`, `.cursor/rules/project.mdc`). The exception is constrained to neutral/gray primitives only — brand colours and intent tokens (success, error, warning, info, focus) are untouched, so the gov.ie identity remains intact and gov.ie components flip via their own semantic tokens that already cascade through those primitives. Tailwind utilities like `bg-gray-200` also resolve to the same CSS variables, so they flip together; only `bg-white` needed an explicit utility-level override because Tailwind hardcodes white as a literal. A small `ThemeContext` writes `data-theme` and `color-scheme` on `<html>` and persists the preference in localStorage (`listlens:v1:theme`). First-paint default follows `prefers-color-scheme`. The toggle itself uses gov.ie's `HeaderPrimaryMenu` + `HeaderMenuItemButton` for the built-in tool-item hover/focus styling; sun/moon glyphs are inline SVGs because gov.ie's IconId set doesn't ship them (the smallest possible custom-icon footprint). See `docs/stories/12-theme-switcher.md` for the cuts (no system/auto tri-state, no animation, no tuned per-component dark palette). When gov.ie publishes real dark tokens upstream, this override can be removed in one diff and the project rule restored without changing any consumer code. |
@@ -165,3 +172,4 @@ Documented to show product thinking beyond v1, and to ensure the v1 component ar
 - **Persistence** — `localStorage` first, eventually a real backend if multi-device sync is desired.
 - **Integration with gov.ie workday tooling** — e.g. surfacing tasks from Microsoft Teams meeting notes via the Graph API. Long-tail v2+ work.
 - **Native iOS app** with similar gov.ie design language for use on phones outside work hours.
+- **Material Symbols font subsetting.** The Day-1 self-hosted `material-symbols` package ships every Material Symbol — a ~3.9MB woff2 — to make gov.ie's `Icon` API work. The app uses around a dozen glyphs (`list`, `check_circle`, `add_circle`, `edit`, `delete`, `more_horiz`, `arrow_upward`, `arrow_downward`, `visibility`, `visibility_off`, `menu`, `close`). Subsetting to just those glyphs would drop the asset to well under 50kB. Out of scope for the v1 prototype — the full font loads adequately on first paint behind `font-display: block` — but a clear, mechanical optimisation if the prototype ever moved to a higher-traffic context.

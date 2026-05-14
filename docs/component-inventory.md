@@ -2,7 +2,7 @@
 
 > **Status:** Forwarding stub. The substantive content for each section below lives in `architecture.md` and `ux-spec.md`. This file exists so the cross-references in `stories/*.md`, `CLAUDE.md`, and `.cursor/rules/project.mdc` resolve to *something* rather than 404. Promote this to a standalone artifact later if the BMAD set is audited.
 >
-> **Owner:** Architect / UX persona (shared). **Last updated:** Week 1, Day 1.
+> **Owner:** Architect / UX persona (shared). **Last updated:** Week 1, Day 1 (post-Epic-12).
 
 ---
 
@@ -36,14 +36,35 @@ Every component in the build, grouped by area. For each, see the canonical doc c
 
 ### 3.1 Custom components
 
-The full list lives in `[architecture.md](architecture.md)` §2 and the gov.ie-vs-custom decision table in `[ux-spec.md](ux-spec.md)` §3. Briefly:
+The full list lives in `[architecture.md](architecture.md)` §2 and the gov.ie-vs-custom decision table in `[ux-spec.md](ux-spec.md)` §3. As of Epic 12:
 
-- `AppShell`, `Header` — app-wide layout chrome
-- `MainContent` — owns the four-way state routing (see §3.5)
-- `TodoList`, `TodoItem`, `TodoText`, `TodoTimestamp`, `TodoDeleteAction` — populated list
-- `TodoInputBar` (composes gov.ie `Input` + `Button`) — create affordance
+**App-wide chrome:**
+- `AppShell` — full-viewport column: header at top, main content scrolling, input bar pinned at bottom
+- `Header` — the bilingual gov.ie strip (light) above the green service bar (`HeaderNext`), with the language toggle in the utility row and the theme toggle in the primary menu (Epic 10, Epic 12)
+- `GovieBranding` — the harp logo + "Rialtas na hÉireann / Government of Ireland" lock-up (Epic 10)
+- `MainContent` — owns the four-way state routing (see §3.5) and the sidebar / drawer composition
+- `ThemeToggle` — `useThemeToggle` hook + `ThemeIcon` (sun / moon) for the header (Epic 12)
+
+**Sidebar / drawer (Epic 08):**
+- `Sidebar` — desktop sidebar: smart views ("All tasks", "Completed"), user lists, count badges, add-list form
+- `MobileNav` — mobile drawer with the same content, gated on a `useMediaQuery` breakpoint
+
+**List pane:**
+- `TodoList` — composes the list header, summary, filter controls, and the list of items
+- `ListSummary` — "x of y completed" + Clear completed + Show / Hide completed toggle (Epic 11)
+- `ListControls` — search input
+- `TodoItem` — single row: checkbox, description, timestamp, action cluster
+- `TodoEditor` — inline editor for description + notes (Epic 07)
+- `TodoReorderActions` — up / down icon buttons (Epic 06, refined Epic 11)
+- `TodoDeleteAction` — delete icon button per row
+
+**Cross-cutting:**
+- `TodoInputBar` — pinned task-creation bar (gov.ie `Input` + `Button`)
+- `UndoToast`, `UndoToastContainer` — destructive-action undo flow with countdown bar
+- `ConfirmModal` — shared confirm dialog (used by Clear completed and Delete list, Epic 09/08)
 - `EmptyState`, `LoadingState`, `ErrorState` — non-populated UI states
-- `UndoToast`, `UndoToastContainer` — destructive-action undo flow
+
+**Removed in Epic 11:** the `FlagIcon` component, the amber-border treatment, the flagged-only filter button, the `TOGGLE_FLAG` / `SET_FLAGGED_ONLY` reducer cases, and the related translation keys.
 
 ### 3.2 State plumbing — referenced by Story 1.2
 
@@ -101,12 +122,20 @@ Substantive spec lives in `[architecture.md](architecture.md)` §8. Summary of t
 
 ## 5. Interaction states matrix — referenced by Story 5.x
 
-> **Known gap:** the per-component interaction-states matrix (hover / focus / active / disabled coverage for each interactive component) has not been written yet. The success-criteria checklist in `[brief.md](brief.md)` §4 captures the intent ("all interaction states are present on every interactive component"). Story 5.x is the natural place to author the matrix when polish work begins; until then, treat the brief's checklist as the binding obligation.
+> The interaction-states matrix was not written as a separate document; the obligation lives in the success-criteria checklist in `[brief.md](brief.md)` §4 ("all interaction states are present on every interactive component"), and is treated as binding. As of Epic 05 the polish pass landed for every interactive component below, and Epic 12 added a dark-mode pass over the same surface.
 
-Interactive components that the matrix will cover, when written:
+Interactive components covered:
 
-- `TodoInputBar` — `Input` and `Button` (gov.ie defaults supply most states; verify against tokens)
-- `TodoItem` — row hover/focus, completion checkbox, delete action
+- `TodoInputBar` — `Input` and `Button` (gov.ie defaults)
+- `TodoItem` — row hover / focus, completion checkbox, the action cluster (edit, reorder up, reorder down, delete)
+- `TodoEditor` — description input, notes textarea, Save / Cancel
+- `Sidebar` — list rows (selected / hover / focus), Add list submit, count badges (which hide on hover/selected via `z-100`)
+- `ListSummary` — Clear completed (flat button), Show / Hide completed (outline toggle button, `aria-pressed`)
+- `ListControls` — search field with clear button
+- `Header` — Gaeilge / English toggle button, theme toggle button
 - `UndoToast` — undo button
+- `ConfirmModal` — confirm and cancel buttons
 - `ErrorState` — retry button
 - `EmptyState` — no interactive elements, included here only for completeness
+
+Per Epic 12, every text colour above also passes against the dark-mode neutral palette (WCAG 4.5:1 for body, 3:1 for large / decorative). The list-pane action buttons (Clear completed, Show / Hide completed, Edit, Delete in the list title) take their dark-mode text colour from a bespoke `.list-action-btn` hook in `globals.css` — a documented workaround for gov.ie's `gi-text-color-*` classes sharing specificity with Tailwind utilities, see the dark-mode entry in `brief.md` §9.
