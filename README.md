@@ -38,6 +38,23 @@ pnpm install
 - Tailwind CSS (gov.ie preset via `createTheme()`)
 - React Context + `useReducer` for state, persisted to `localStorage` under `listlens:v1:todos` (Story 1.4)
 
+## Demoing this
+
+The app simulates a 600–900ms initial load with a 10% chance of failure, so the loading and error states are reproducible. Two `window` flags in the browser console make each UI state deterministic — set the flag, then reload.
+
+| Flag | Effect |
+|---|---|
+| `window.__instant = true` | Skip the simulated load delay. Still reads any persisted todos from `localStorage`. |
+| `window.__forceError = true` | Force the initial load to fail, regardless of what is in `localStorage`. |
+
+Tasks persist to `localStorage` under the versioned key `listlens:v1:todos`. To reset to the empty state during testing:
+
+```js
+localStorage.removeItem('listlens:v1:todos');
+```
+
+Then reload the page.
+
 ## Structure
 
 ```

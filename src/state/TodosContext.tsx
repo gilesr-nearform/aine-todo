@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from 'react';
 import { loadInitialTodos } from '../mocks/initialLoad';
+import { writeToStorage } from './storage';
 import { todosReducer } from './todosReducer';
 import { initialState, type Action, type AppState } from './types';
 
@@ -44,6 +45,11 @@ export function TodosProvider({ children }: { children: ReactNode }) {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (state.status !== 'success') return;
+    writeToStorage(state.todos);
+  }, [state.status, state.todos]);
 
   return (
     <TodosContext.Provider value={{ state, dispatch }}>

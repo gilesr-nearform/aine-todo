@@ -1,3 +1,4 @@
+import { readFromStorage } from '../state/storage';
 import type { Todo } from '../state/types';
 import './devTriggers';
 
@@ -7,7 +8,7 @@ const FAILURE_RATE = 0.1;
 
 export function loadInitialTodos(): Promise<Todo[]> {
   if (window.__instant === true) {
-    return Promise.resolve([]);
+    return Promise.resolve(readFromStorage());
   }
   return new Promise<Todo[]>((resolve, reject) => {
     const delay = MIN_DELAY_MS + Math.random() * DELAY_RANGE_MS;
@@ -17,7 +18,7 @@ export function loadInitialTodos(): Promise<Todo[]> {
       if (shouldFail) {
         reject(new Error('Simulated load failure'));
       } else {
-        resolve([]);
+        resolve(readFromStorage());
       }
     }, delay);
   });
