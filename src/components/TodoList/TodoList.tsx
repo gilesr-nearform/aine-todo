@@ -107,6 +107,7 @@ export function TodoList() {
                   size="sm"
                   ariaLabel={t('sidebar.rename', { name: activeList.name })}
                   onClick={() => setRenamingActiveList(true)}
+                  className="dark:text-emerald-50"
                 >
                   <Icon icon="edit" size="sm" ariaHidden />
                 </IconButton>
@@ -116,6 +117,7 @@ export function TodoList() {
                   size="sm"
                   ariaLabel={t('sidebar.delete', { name: activeList.name })}
                   onClick={() => setDeleteListOpen(true)}
+                  className="dark:text-emerald-50"
                 >
                   <Icon icon="delete" size="sm" ariaHidden />
                 </IconButton>
