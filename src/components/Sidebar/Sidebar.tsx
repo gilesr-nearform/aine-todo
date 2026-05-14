@@ -6,6 +6,7 @@ import {
   SideNavHeading,
   SideNavItem,
 } from '@ogcio/design-system-react';
+import type { ComponentProps } from 'react';
 import {
   useId,
   useMemo,
@@ -20,6 +21,16 @@ import type { ListId } from '../../state/types';
 
 const SMART_ALL_VALUE = '__all__';
 const SMART_COMPLETED_VALUE = '__completed__';
+
+/*
+ * Gov.ie types `SideNavItem.icon` to its curated set of ~80 names, but the
+ * underlying Icon component falls through to a Material Symbols font ligature
+ * for any unknown name. Since the index.html loads the full Material Symbols
+ * Outlined font, names like `format_list_bulleted` render correctly at
+ * runtime. We narrow the cast to one place rather than scatter `as` calls.
+ */
+type SideNavIcon = ComponentProps<typeof SideNavItem>['icon'];
+const ALL_TASKS_ICON = 'format_list_bulleted' as SideNavIcon;
 
 interface SidebarProps {
   onNavigate?: () => void;
@@ -83,7 +94,11 @@ export function Sidebar({ onNavigate }: SidebarProps) {
       >
         <SideNavHeading as="h2">{t('sidebar.smart')}</SideNavHeading>
         <div className="relative">
-          <SideNavItem value={SMART_ALL_VALUE} label={t('sidebar.allTasks')} icon="apps" />
+          <SideNavItem
+            value={SMART_ALL_VALUE}
+            label={t('sidebar.allTasks')}
+            icon={ALL_TASKS_ICON}
+          />
           {counts.all > 0 ? <CountBadge count={counts.all} /> : null}
         </div>
         <div className="relative">
