@@ -30,7 +30,7 @@ const SMART_COMPLETED_VALUE = '__completed__';
  * runtime. We narrow the cast to one place rather than scatter `as` calls.
  */
 type SideNavIcon = ComponentProps<typeof SideNavItem>['icon'];
-const ALL_TASKS_ICON = 'format_list_bulleted' as SideNavIcon;
+const ALL_TASKS_ICON = 'list' as SideNavIcon;
 
 interface SidebarProps {
   onNavigate?: () => void;
