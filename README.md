@@ -55,6 +55,23 @@ localStorage.removeItem('listlens:v1:todos');
 
 Then reload the page.
 
+## Accessibility and polish status
+
+The implementation hits the baseline obligations from `docs/stories/05-polish.md`:
+
+- `<html lang="en">`, single `<h1>`, semantic landmarks (`<header>`, `<main>`, `<ul>`/`<li>`).
+- Every interactive element has a discernible name: the input is labelled, the submit button reads "Add", the delete button reads "Delete '<description>'", the retry button reads "Try again", the undo button reads "Undo", the checkbox is labelled by the description.
+- `role="alert"` on the error state and `role="status" aria-live="polite"` on the undo toast container.
+- `prefers-reduced-motion: reduce` suppresses the row-enter fade, the toggle colour transition, the skeleton pulse, and the undo-toast countdown bar.
+- `100dvh` for the app shell, safe-area padding for the input bar, `-webkit-tap-highlight-color: transparent` for iOS.
+- The completed-row visual is not colour-alone (strikethrough plus the checkbox's checked state).
+
+Outstanding manual verification (cannot be done from inside the agent loop):
+
+- Real-device QA on iPhone Safari and desktop Chrome at full, ~720px, and ~400px widths.
+- axe DevTools run on each of the four UI states.
+- VoiceOver / NVDA pass on delete + undo flow.
+
 ## Structure
 
 ```
