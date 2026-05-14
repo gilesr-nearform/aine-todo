@@ -92,7 +92,6 @@ export function Sidebar({ onNavigate }: SidebarProps) {
         onChange={handleSelect}
         key={selectedValue}
       >
-        <SideNavHeading as="h2">{t('sidebar.smart')}</SideNavHeading>
         <div className="relative">
           <SideNavItem
             value={SMART_ALL_VALUE}

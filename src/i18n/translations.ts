@@ -37,7 +37,6 @@ const en = {
 
   // Sidebar
   'sidebar.aria': 'Lists',
-  'sidebar.smart': 'Smart',
   'sidebar.allTasks': 'All tasks',
   'sidebar.completed': 'Completed',
   'sidebar.myLists': 'My lists',
@@ -130,7 +129,6 @@ const ga: Record<Key, string> = {
 
   // Sidebar
   'sidebar.aria': 'Liostaí',
-  'sidebar.smart': 'Cliste',
   'sidebar.allTasks': 'Gach tasc',
   'sidebar.completed': 'Críochnaithe',
   'sidebar.myLists': 'Mo liostaí',
