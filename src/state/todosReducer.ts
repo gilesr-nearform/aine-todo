@@ -83,5 +83,20 @@ export function todosReducer(state: AppState, action: Action): AppState {
           (r) => r.todo.id !== action.payload.id,
         ),
       };
+
+    case 'REORDER_TODO': {
+      const index = state.todos.findIndex((t) => t.id === action.payload.id);
+      if (index === -1) return state;
+      const swapWith =
+        action.payload.direction === 'up' ? index - 1 : index + 1;
+      if (swapWith < 0 || swapWith >= state.todos.length) return state;
+      const current = state.todos[index];
+      const neighbour = state.todos[swapWith];
+      if (!current || !neighbour) return state;
+      const next = [...state.todos];
+      next[index] = neighbour;
+      next[swapWith] = current;
+      return { ...state, todos: next };
+    }
   }
 }

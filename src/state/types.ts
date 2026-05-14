@@ -30,7 +30,11 @@ export type Action =
   | { type: 'TOGGLE_COMPLETE'; payload: { id: TodoId } }
   | { type: 'DELETE_TODO'; payload: { id: TodoId } }
   | { type: 'UNDO_DELETE'; payload: { id: TodoId } }
-  | { type: 'EXPIRE_DELETED'; payload: { id: TodoId } };
+  | { type: 'EXPIRE_DELETED'; payload: { id: TodoId } }
+  | {
+      type: 'REORDER_TODO';
+      payload: { id: TodoId; direction: 'up' | 'down' };
+    };
 
 export const initialState: AppState = {
   status: 'idle',

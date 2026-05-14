@@ -21,6 +21,7 @@
 | 03 — Delete & Undo | `03-delete-and-undo.md` | 4 | Required |
 | 04 — UI States | `04-ui-states.md` | 4 | Required |
 | 05 — Polish | `05-polish.md` | 4 | Required |
+| 06 — Reorder | `06-reorder.md` | 1 | Added Day 1 — scope expansion, see `brief.md` §9 |
 
 ## Build-order rule
 

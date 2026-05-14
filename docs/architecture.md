@@ -180,6 +180,7 @@ The reducer handles exactly these actions. Adding a new one is a decision-log en
 | `DELETE_TODO` | `{ id: TodoId }` | Removes the todo from `todos`, pushes a `DeletedRecord` onto `recentlyDeleted` |
 | `UNDO_DELETE` | `{ id: TodoId }` | Restores the todo from `recentlyDeleted` to its `originalIndex` in `todos` |
 | `EXPIRE_DELETED` | `{ id: TodoId }` | Removes a `DeletedRecord` from `recentlyDeleted` (after the toast's undo window closes) |
+| `REORDER_TODO` | `{ id: TodoId, direction: 'up' \| 'down' }` | Swaps the todo with its neighbour in `todos`. No-op if already at the boundary. Added in Epic 06 — see `brief.md` §9. |
 
 ### 4.3 Why a reducer (vs. plain useState)
 

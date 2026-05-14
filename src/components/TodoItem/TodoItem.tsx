@@ -4,12 +4,15 @@ import { useTodos } from '../../state/TodosContext';
 import type { Todo } from '../../state/types';
 import { formatCreatedAt } from '../../utils/formatTimestamp';
 import { TodoDeleteAction } from '../TodoDeleteAction/TodoDeleteAction';
+import { TodoReorderActions } from '../TodoReorderActions/TodoReorderActions';
 
 interface TodoItemProps {
   todo: Todo;
+  index: number;
+  total: number;
 }
 
-export function TodoItem({ todo }: TodoItemProps) {
+export function TodoItem({ todo, index, total }: TodoItemProps) {
   const { dispatch } = useTodos();
   const checkboxId = useId();
 
@@ -55,6 +58,13 @@ export function TodoItem({ todo }: TodoItemProps) {
           {formatCreatedAt(todo.createdAt)}
         </span>
       </div>
+      <TodoReorderActions
+        id={todo.id}
+        description={todo.description}
+        index={index}
+        total={total}
+        className="opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100"
+      />
       <TodoDeleteAction
         id={todo.id}
         description={todo.description}

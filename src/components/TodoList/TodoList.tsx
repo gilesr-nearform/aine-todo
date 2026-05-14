@@ -8,8 +8,13 @@ export function TodoList() {
 
   return (
     <ul className="mx-auto w-full max-w-2xl list-none p-0">
-      {state.todos.map((todo) => (
-        <TodoItem key={todo.id} todo={todo} />
+      {state.todos.map((todo, index) => (
+        <TodoItem
+          key={todo.id}
+          todo={todo}
+          index={index}
+          total={state.todos.length}
+        />
       ))}
     </ul>
   );
