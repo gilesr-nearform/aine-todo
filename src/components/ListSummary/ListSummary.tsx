@@ -1,8 +1,10 @@
 import { Button, Icon } from '@ogcio/design-system-react';
+import { useState } from 'react';
 
 import { useT } from '../../i18n/I18nContext';
 import { useTodos } from '../../state/TodosContext';
 import type { ListId } from '../../state/types';
+import { ConfirmModal } from '../ConfirmModal/ConfirmModal';
 
 interface ListSummaryProps {
   total: number;
@@ -21,18 +23,19 @@ export function ListSummary({
 }: ListSummaryProps) {
   const { state, dispatch } = useTodos();
   const t = useT();
+  const [clearOpen, setClearOpen] = useState(false);
 
   if (total === 0) return null;
 
   const showCompleted = state.filters.showCompleted;
+  const clearBody =
+    listId === null
+      ? t('summary.confirmClearAll', { count: completed })
+      : t('summary.confirmClearList', { count: completed, name: listName });
 
-  function handleClear() {
-    const message =
-      listId === null
-        ? t('summary.confirmClearAll', { count: completed })
-        : t('summary.confirmClearList', { count: completed, name: listName });
-    if (!window.confirm(message)) return;
+  function confirmClear() {
     dispatch({ type: 'CLEAR_COMPLETED', payload: { listId } });
+    setClearOpen(false);
   }
 
   return (
@@ -46,7 +49,7 @@ export function ListSummary({
           variant="secondary"
           size="sm"
           disabled={completed === 0}
-          onClick={handleClear}
+          onClick={() => setClearOpen(true)}
         >
           {t('summary.clear')}
         </Button>
@@ -74,6 +77,14 @@ export function ListSummary({
           </Button>
         )}
       </div>
+      <ConfirmModal
+        isOpen={clearOpen}
+        title={t('summary.confirmClearTitle')}
+        body={clearBody}
+        confirmLabel={t('summary.clear')}
+        onConfirm={confirmClear}
+        onCancel={() => setClearOpen(false)}
+      />
     </div>
   );
 }

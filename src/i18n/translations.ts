@@ -44,6 +44,7 @@ const en = {
   'sidebar.addList': 'Add list',
   'sidebar.rename': "Rename '{name}'",
   'sidebar.delete': "Delete '{name}'",
+  'sidebar.confirmDeleteTitle': 'Delete this list?',
   'sidebar.confirmDelete':
     "Delete '{name}' and its tasks? Tasks in this list will be permanently removed.",
   'sidebar.renameInputLabel': "Rename list '{name}'",
@@ -57,6 +58,7 @@ const en = {
   'summary.clear': 'Clear completed',
   'summary.show': 'Show completed',
   'summary.hide': 'Hide completed',
+  'summary.confirmClearTitle': 'Clear completed tasks?',
   'summary.confirmClearList':
     "Clear {count} completed tasks in '{name}'? This can't be undone.",
   'summary.confirmClearAll':
@@ -133,6 +135,7 @@ const ga: Record<Key, string> = {
   'sidebar.addList': 'Cuir liosta leis',
   'sidebar.rename': "Athainmnigh '{name}'",
   'sidebar.delete': "Scrios '{name}'",
+  'sidebar.confirmDeleteTitle': 'An scriosfar an liosta seo?',
   'sidebar.confirmDelete':
     "An scriosfar '{name}' agus a chuid tascanna? Scriosfar tascanna an liosta seo go buan.",
   'sidebar.renameInputLabel': "Athainmnigh an liosta '{name}'",
@@ -146,6 +149,7 @@ const ga: Record<Key, string> = {
   'summary.clear': 'Glan na cinn chríochnaithe',
   'summary.show': 'Taispeáin na cinn chríochnaithe',
   'summary.hide': 'Folaigh na cinn chríochnaithe',
+  'summary.confirmClearTitle': 'An nglanfar na tascanna críochnaithe?',
   'summary.confirmClearList':
     "An nglanfar {count} tasc críochnaithe i '{name}'? Ní féidir é seo a chealú.",
   'summary.confirmClearAll':

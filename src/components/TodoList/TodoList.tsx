@@ -5,6 +5,7 @@ import { useT } from '../../i18n/I18nContext';
 import { useTodos } from '../../state/TodosContext';
 import type { Filters, ListId, SmartView, Todo } from '../../state/types';
 import { countCompleted } from '../../utils/todoCounts';
+import { ConfirmModal } from '../ConfirmModal/ConfirmModal';
 import { ListControls } from '../ListControls/ListControls';
 import { ListSummary } from '../ListSummary/ListSummary';
 import { TodoItem } from '../TodoItem/TodoItem';
@@ -44,10 +45,12 @@ export function TodoList() {
   const { state, dispatch } = useTodos();
   const t = useT();
   const [renamingActiveList, setRenamingActiveList] = useState(false);
+  const [deleteListOpen, setDeleteListOpen] = useState(false);
   const [prevActiveListId, setPrevActiveListId] = useState(state.activeListId);
   if (prevActiveListId !== state.activeListId) {
     setPrevActiveListId(state.activeListId);
     setRenamingActiveList(false);
+    setDeleteListOpen(false);
   }
 
   const isCompletedSmartView =
@@ -112,19 +115,7 @@ export function TodoList() {
                   variant="flat"
                   size="sm"
                   ariaLabel={t('sidebar.delete', { name: activeList.name })}
-                  onClick={() => {
-                    if (
-                      !window.confirm(
-                        t('sidebar.confirmDelete', { name: activeList.name }),
-                      )
-                    ) {
-                      return;
-                    }
-                    dispatch({
-                      type: 'DELETE_LIST',
-                      payload: { id: activeList.id },
-                    });
-                  }}
+                  onClick={() => setDeleteListOpen(true)}
                 >
                   <Icon icon="delete" size="sm" ariaHidden />
                 </IconButton>
@@ -183,6 +174,19 @@ export function TodoList() {
           })}
         </ul>
       )}
+      {activeList !== undefined ? (
+        <ConfirmModal
+          isOpen={deleteListOpen}
+          title={t('sidebar.confirmDeleteTitle')}
+          body={t('sidebar.confirmDelete', { name: activeList.name })}
+          confirmLabel={t('sidebar.delete', { name: activeList.name })}
+          onConfirm={() => {
+            dispatch({ type: 'DELETE_LIST', payload: { id: activeList.id } });
+            setDeleteListOpen(false);
+          }}
+          onCancel={() => setDeleteListOpen(false)}
+        />
+      ) : null}
     </div>
   );
 }
