@@ -16,6 +16,7 @@ import {
   type FormEvent,
   type KeyboardEvent,
 } from 'react';
+import { useT } from '../../i18n/I18nContext';
 import { useTodos } from '../../state/TodosContext';
 import type { List, ListId } from '../../state/types';
 
@@ -27,6 +28,7 @@ interface SidebarProps {
 
 export function Sidebar({ onNavigate }: SidebarProps) {
   const { state, dispatch } = useTodos();
+  const t = useT();
   const [draft, setDraft] = useState('');
   const [renamingId, setRenamingId] = useState<ListId | null>(null);
   const newListInputId = useId();
@@ -58,8 +60,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
   }
 
   function handleDelete(list: List) {
-    const message = `Delete '${list.name}' and its tasks? Tasks in this list will be permanently removed.`;
-    if (!window.confirm(message)) return;
+    if (!window.confirm(t('sidebar.confirmDelete', { name: list.name }))) return;
     dispatch({ type: 'DELETE_LIST', payload: { id: list.id } });
   }
 
@@ -68,7 +69,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
 
   return (
     <nav
-      aria-label="Lists"
+      aria-label={t('sidebar.aria')}
       className="flex w-full flex-col gap-3 border-r border-gray-200 bg-white p-3 md:h-full md:w-[260px]"
     >
       <SideNav
@@ -76,12 +77,12 @@ export function Sidebar({ onNavigate }: SidebarProps) {
         onChange={handleSelect}
         key={selectedValue}
       >
-        <SideNavHeading as="h2">Smart</SideNavHeading>
+        <SideNavHeading as="h2">{t('sidebar.smart')}</SideNavHeading>
         <div className="relative">
-          <SideNavItem value={SMART_ALL_VALUE} label="All tasks" icon="apps" />
+          <SideNavItem value={SMART_ALL_VALUE} label={t('sidebar.allTasks')} icon="apps" />
           {counts.all > 0 ? <CountBadge count={counts.all} /> : null}
         </div>
-        <SideNavHeading as="h2">My lists</SideNavHeading>
+        <SideNavHeading as="h2">{t('sidebar.myLists')}</SideNavHeading>
         {state.lists.map((list) => {
           const count = counts.byList.get(list.id) ?? 0;
           if (renamingId === list.id) {
@@ -114,7 +115,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
                 type="button"
                 variant="flat"
                 size="sm"
-                ariaLabel={`Rename '${list.name}'`}
+                ariaLabel={t('sidebar.rename', { name: list.name })}
                 onClick={() => setRenamingId(list.id)}
               >
                 <Icon icon="edit" size="sm" ariaHidden />
@@ -124,7 +125,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
                   type="button"
                   variant="flat"
                   size="sm"
-                  ariaLabel={`Delete '${list.name}'`}
+                  ariaLabel={t('sidebar.delete', { name: list.name })}
                   onClick={() => handleDelete(list)}
                 >
                   <Icon icon="delete" size="sm" ariaHidden />
@@ -138,17 +139,17 @@ export function Sidebar({ onNavigate }: SidebarProps) {
         ref={formRef}
         onSubmit={handleCreate}
         className="mt-2 flex flex-col gap-2 border-t border-gray-200 pt-3"
-        aria-label="Add a list"
+        aria-label={t('sidebar.addList')}
       >
         <label htmlFor={newListInputId} className="sr-only">
-          New list name
+          {t('sidebar.newListLabel')}
         </label>
         <InputText
           id={newListInputId}
           type="text"
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
-          placeholder="New list name"
+          placeholder={t('sidebar.newListPlaceholder')}
           autoComplete="off"
         />
         <Button
@@ -157,7 +158,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
           size="sm"
           disabled={draft.trim().length === 0}
         >
-          Add list
+          {t('sidebar.addList')}
         </Button>
       </form>
     </nav>
@@ -188,6 +189,7 @@ interface RenameRowProps {
 
 function RenameRow({ list, onCancel, onSaved }: RenameRowProps) {
   const { dispatch } = useTodos();
+  const t = useT();
   const [value, setValue] = useState(list.name);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -221,7 +223,7 @@ function RenameRow({ list, onCancel, onSaved }: RenameRowProps) {
   return (
     <div className="flex items-center gap-1 px-2 py-1">
       <label className="sr-only" htmlFor={`rename-${list.id}`}>
-        Rename list
+        {t('sidebar.renameInputLabel', { name: list.name })}
       </label>
       <InputText
         id={`rename-${list.id}`}

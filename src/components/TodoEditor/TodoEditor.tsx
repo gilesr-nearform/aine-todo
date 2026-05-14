@@ -7,6 +7,7 @@ import {
   type FormEvent,
   type KeyboardEvent,
 } from 'react';
+import { useT } from '../../i18n/I18nContext';
 import { useTodos } from '../../state/TodosContext';
 import type { Todo } from '../../state/types';
 
@@ -16,6 +17,7 @@ interface TodoEditorProps {
 
 export function TodoEditor({ todo }: TodoEditorProps) {
   const { dispatch } = useTodos();
+  const t = useT();
   const descriptionId = useId();
   const notesId = useId();
   const descriptionRef = useRef<HTMLInputElement>(null);
@@ -68,7 +70,7 @@ export function TodoEditor({ todo }: TodoEditorProps) {
     <form
       onSubmit={handleSubmit}
       onKeyDown={handleKeyDown}
-      aria-label="Edit task"
+      aria-label={t('todo.edit', { description: todo.description })}
       className="mt-2 flex w-full flex-col gap-3 rounded-md border border-gray-300 bg-gray-50 p-3"
     >
       <div className="flex flex-col gap-1">
@@ -76,7 +78,7 @@ export function TodoEditor({ todo }: TodoEditorProps) {
           htmlFor={descriptionId}
           className="text-xs font-medium text-gray-700"
         >
-          Description
+          {t('editor.description')}
         </label>
         <InputText
           id={descriptionId}
@@ -89,22 +91,22 @@ export function TodoEditor({ todo }: TodoEditorProps) {
       </div>
       <div className="flex flex-col gap-1">
         <label htmlFor={notesId} className="text-xs font-medium text-gray-700">
-          Notes (optional)
+          {t('editor.notes')}
         </label>
         <TextArea
           id={notesId}
           rows={3}
           value={notes}
           onChange={(event) => setNotes(event.target.value)}
-          placeholder="Add a note"
+          placeholder={t('editor.notesPlaceholder')}
         />
       </div>
       <div className="flex items-center justify-end gap-2">
         <Button type="button" variant="secondary" onClick={cancel}>
-          Cancel
+          {t('editor.cancel')}
         </Button>
         <Button type="submit" variant="primary" disabled={!canSave}>
-          Save
+          {t('editor.save')}
         </Button>
       </div>
     </form>

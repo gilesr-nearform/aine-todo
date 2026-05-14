@@ -1,4 +1,6 @@
 import { Button, Heading } from '@ogcio/design-system-react';
+
+import { useT } from '../../i18n/I18nContext';
 import { useTodos } from '../../state/TodosContext';
 import {
   defaultFilters,
@@ -38,21 +40,24 @@ function matchesList(todo: Todo, activeListId: ListId | null): boolean {
 function activeListName(
   activeListId: ListId | null,
   lists: ReturnType<typeof useTodos>['state']['lists'],
+  fallback: string,
 ): string {
-  if (activeListId === null) return 'All tasks';
+  if (activeListId === null) return fallback;
   const found = lists.find((l) => l.id === activeListId);
-  return found?.name ?? 'All tasks';
+  return found?.name ?? fallback;
 }
 
 export function TodoList() {
   const { state, dispatch } = useTodos();
+  const t = useT();
 
   const filtersActive = !filtersAreDefault(state.filters);
-  const inList = state.todos.filter((t) => matchesList(t, state.activeListId));
+  const inList = state.todos.filter((tt) => matchesList(tt, state.activeListId));
   const visibleTodos = filtersActive
-    ? inList.filter((t) => matchesFilters(t, state.filters))
+    ? inList.filter((tt) => matchesFilters(tt, state.filters))
     : inList;
-  const listName = activeListName(state.activeListId, state.lists);
+  const allTasksLabel = t('list.allTasksHeading');
+  const listName = activeListName(state.activeListId, state.lists, allTasksLabel);
   const completed = countCompleted(inList);
 
   return (
@@ -70,14 +75,12 @@ export function TodoList() {
       {inList.length === 0 ? (
         <p className="py-6 text-base text-gray-700">
           {state.activeListId === null
-            ? 'No tasks yet. Add one below.'
-            : `No tasks in ${listName} yet. Add one below.`}
+            ? t('state.emptyBodyGeneric')
+            : t('state.emptyBodyForList', { list: listName })}
         </p>
       ) : visibleTodos.length === 0 ? (
         <div className="flex flex-col items-center gap-3 py-8 text-center">
-          <p className="text-base text-gray-700">
-            No tasks match your filters.
-          </p>
+          <p className="text-base text-gray-700">{t('state.noMatches')}</p>
           <Button
             type="button"
             variant="secondary"
@@ -94,13 +97,13 @@ export function TodoList() {
               });
             }}
           >
-            Reset filters
+            {t('state.resetFilters')}
           </Button>
         </div>
       ) : (
         <ul className="list-none p-0">
           {visibleTodos.map((todo) => {
-            const inListIndex = inList.findIndex((t) => t.id === todo.id);
+            const inListIndex = inList.findIndex((tt) => tt.id === todo.id);
             return (
               <TodoItem
                 key={todo.id}

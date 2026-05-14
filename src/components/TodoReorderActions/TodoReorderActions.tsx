@@ -1,4 +1,6 @@
 import { Icon, IconButton } from '@ogcio/design-system-react';
+
+import { useT } from '../../i18n/I18nContext';
 import { useTodos } from '../../state/TodosContext';
 import type { TodoId } from '../../state/types';
 
@@ -20,6 +22,7 @@ export function TodoReorderActions({
   className,
 }: TodoReorderActionsProps) {
   const { dispatch } = useTodos();
+  const t = useT();
   const isFirst = index === 0;
   const isLast = index === total - 1;
 
@@ -29,7 +32,7 @@ export function TodoReorderActions({
         type="button"
         variant="flat"
         size="sm"
-        ariaLabel={`Move '${description}' up`}
+        ariaLabel={t('todo.moveUp', { description })}
         disabled={disabled || isFirst}
         onClick={() =>
           dispatch({
@@ -44,7 +47,7 @@ export function TodoReorderActions({
         type="button"
         variant="flat"
         size="sm"
-        ariaLabel={`Move '${description}' down`}
+        ariaLabel={t('todo.moveDown', { description })}
         disabled={disabled || isLast}
         onClick={() =>
           dispatch({

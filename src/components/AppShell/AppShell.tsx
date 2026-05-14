@@ -1,3 +1,4 @@
+import { GovieBranding } from './GovieBranding';
 import { Header } from './Header';
 import { MainContent } from './MainContent';
 import { Sidebar } from '../Sidebar/Sidebar';
@@ -7,6 +8,7 @@ import { UndoToastContainer } from '../UndoToast/UndoToastContainer';
 export function AppShell() {
   return (
     <div className="flex h-dvh w-full flex-col bg-white">
+      <GovieBranding />
       <Header />
       <div className="flex min-h-0 flex-1">
         <aside className="hidden min-h-0 md:flex">

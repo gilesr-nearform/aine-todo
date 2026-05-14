@@ -1,10 +1,13 @@
 import { Button, InputText } from '@ogcio/design-system-react';
 import { useId } from 'react';
+
+import { useT } from '../../i18n/I18nContext';
 import { useTodos } from '../../state/TodosContext';
 import { FlagIcon } from '../Icons/FlagIcon';
 
 export function ListControls() {
   const { state, dispatch } = useTodos();
+  const t = useT();
   const searchId = useId();
 
   if (state.status !== 'success' || state.todos.length === 0) return null;
@@ -15,13 +18,13 @@ export function ListControls() {
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-3 pb-3">
       <div className="flex flex-col gap-1">
         <label htmlFor={searchId} className="sr-only">
-          Search tasks
+          {t('controls.searchLabel')}
         </label>
         <InputText
           id={searchId}
           type="search"
           value={search}
-          placeholder="Search tasks"
+          placeholder={t('controls.searchPlaceholder')}
           onChange={(event) =>
             dispatch({
               type: 'SET_SEARCH',
@@ -45,7 +48,7 @@ export function ListControls() {
           }
         >
           <FlagIcon filled={flaggedOnly} />
-          <span className="ml-1">Flagged only</span>
+          <span className="ml-1">{t('controls.flaggedOnly')}</span>
         </Button>
       </div>
     </div>

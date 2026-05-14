@@ -1,9 +1,12 @@
 import { Button, InputText } from '@ogcio/design-system-react';
 import { useId, useRef, useState, type FormEvent } from 'react';
+
+import { useT } from '../../i18n/I18nContext';
 import { useTodos } from '../../state/TodosContext';
 
 export function TodoInputBar() {
   const { state, dispatch } = useTodos();
+  const t = useT();
   const inputRef = useRef<HTMLInputElement>(null);
   const inputId = useId();
   const [draft, setDraft] = useState('');
@@ -17,7 +20,9 @@ export function TodoInputBar() {
       ? state.lists.find((l) => l.id === state.activeListId)
       : state.lists[0];
   const placeholder =
-    targetList !== undefined ? `Add a task to ${targetList.name}` : 'Add a task';
+    targetList !== undefined
+      ? t('input.placeholderForList', { list: targetList.name })
+      : t('input.placeholderGeneric');
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -31,11 +36,11 @@ export function TodoInputBar() {
     <form
       className="flex w-full items-end gap-3"
       onSubmit={handleSubmit}
-      aria-label="Add a task"
+      aria-label={t('input.formAria')}
     >
       <div className="flex-1">
         <label htmlFor={inputId} className="sr-only">
-          Task description
+          {t('input.label')}
         </label>
         <InputText
           id={inputId}
@@ -50,7 +55,7 @@ export function TodoInputBar() {
         />
       </div>
       <Button type="submit" variant="primary" disabled={!canSubmit}>
-        Add
+        {t('input.add')}
       </Button>
     </form>
   );

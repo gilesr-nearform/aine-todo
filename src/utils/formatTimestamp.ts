@@ -1,16 +1,35 @@
-const timeFormatter = new Intl.DateTimeFormat('en-IE', {
-  hour: '2-digit',
-  minute: '2-digit',
-  hour12: false,
-});
+type Locale = string;
 
-const dateFormatter = new Intl.DateTimeFormat('en-IE', {
-  day: 'numeric',
-  month: 'short',
-  hour: '2-digit',
-  minute: '2-digit',
-  hour12: false,
-});
+const timeFormatterCache = new Map<Locale, Intl.DateTimeFormat>();
+const dateFormatterCache = new Map<Locale, Intl.DateTimeFormat>();
+
+function getTimeFormatter(locale: Locale): Intl.DateTimeFormat {
+  let formatter = timeFormatterCache.get(locale);
+  if (formatter === undefined) {
+    formatter = new Intl.DateTimeFormat(locale, {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+    timeFormatterCache.set(locale, formatter);
+  }
+  return formatter;
+}
+
+function getDateFormatter(locale: Locale): Intl.DateTimeFormat {
+  let formatter = dateFormatterCache.get(locale);
+  if (formatter === undefined) {
+    formatter = new Intl.DateTimeFormat(locale, {
+      day: 'numeric',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+    dateFormatterCache.set(locale, formatter);
+  }
+  return formatter;
+}
 
 function isSameLocalDay(a: Date, b: Date): boolean {
   return (
@@ -20,9 +39,18 @@ function isSameLocalDay(a: Date, b: Date): boolean {
   );
 }
 
-export function formatCreatedAt(createdAt: Date, now: Date = new Date()): string {
+export interface FormattedCreatedAt {
+  kind: 'time' | 'date';
+  value: string;
+}
+
+export function describeCreatedAt(
+  createdAt: Date,
+  locale: Locale = 'en-IE',
+  now: Date = new Date()
+): FormattedCreatedAt {
   if (isSameLocalDay(createdAt, now)) {
-    return `added at ${timeFormatter.format(createdAt)}`;
+    return { kind: 'time', value: getTimeFormatter(locale).format(createdAt) };
   }
-  return `added on ${dateFormatter.format(createdAt)}`;
+  return { kind: 'date', value: getDateFormatter(locale).format(createdAt) };
 }

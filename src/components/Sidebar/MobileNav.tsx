@@ -5,11 +5,14 @@ import {
   IconButton,
 } from '@ogcio/design-system-react';
 import { useState } from 'react';
+
+import { useT } from '../../i18n/I18nContext';
 import { Sidebar } from './Sidebar';
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
+  const t = useT();
 
   return (
     <>
@@ -18,7 +21,7 @@ export function MobileNav() {
         variant="flat"
         appearance="dark"
         size="md"
-        ariaLabel="Open lists menu"
+        ariaLabel={t('sidebar.openMenu')}
         aria-expanded={open}
         onClick={() => setOpen(true)}
       >
@@ -28,7 +31,7 @@ export function MobileNav() {
         isOpen={open}
         onClose={close}
         position="left"
-        closeButtonLabel="Close menu"
+        closeButtonLabel={t('sidebar.closeMenu')}
       >
         <DrawerBody>
           <Sidebar onNavigate={close} />

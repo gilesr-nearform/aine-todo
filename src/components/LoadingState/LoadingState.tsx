@@ -1,3 +1,5 @@
+import { useT } from '../../i18n/I18nContext';
+
 const SKELETON_ROW_WIDTHS = ['w-3/4', 'w-1/2', 'w-2/3'] as const;
 
 function SkeletonRow({ descriptionWidth }: { descriptionWidth: string }) {
@@ -13,11 +15,12 @@ function SkeletonRow({ descriptionWidth }: { descriptionWidth: string }) {
 }
 
 export function LoadingState() {
+  const t = useT();
   return (
     <div
       className="mx-auto w-full max-w-2xl animate-pulse motion-reduce:animate-none"
       aria-busy="true"
-      aria-label="Loading tasks"
+      aria-label={t('state.loadingAria')}
     >
       <ul className="list-none p-0">
         {SKELETON_ROW_WIDTHS.map((width, index) => (

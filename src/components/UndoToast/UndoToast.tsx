@@ -1,6 +1,8 @@
 import { Button } from '@ogcio/design-system-react';
 import { useCallback, useState } from 'react';
+
 import { useUndoTimer } from '../../hooks/useUndoTimer';
+import { useT } from '../../i18n/I18nContext';
 import type { DeletedRecord, TodoId } from '../../state/types';
 
 interface UndoToastProps {
@@ -17,6 +19,7 @@ export function UndoToast({
   onExpire,
 }: UndoToastProps) {
   const id = record.todo.id;
+  const t = useT();
   const handleExpire = useCallback(() => onExpire(id), [onExpire, id]);
 
   useUndoTimer(record.expiresAt, handleExpire);
@@ -29,7 +32,7 @@ export function UndoToast({
     <div className="pointer-events-auto flex w-full max-w-md flex-col gap-2 rounded-md border border-gray-200 bg-gray-900 px-4 py-3 text-white shadow-lg">
       <div className="flex items-center justify-between gap-3">
         <span className="min-w-0 flex-1 truncate text-sm">
-          Deleted &ldquo;{record.todo.description}&rdquo;
+          {t('undo.deleted', { description: record.todo.description })}
         </span>
         <Button
           type="button"
@@ -38,7 +41,7 @@ export function UndoToast({
           size="sm"
           onClick={() => onUndo(id)}
         >
-          Undo
+          {t('undo.undo')}
         </Button>
       </div>
       <div
