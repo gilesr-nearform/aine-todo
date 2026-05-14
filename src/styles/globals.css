@@ -1,6 +1,15 @@
 @import '@ogcio/theme-govie/light.css';
 @import '@ogcio/theme-govie/dark.css';
 @import '@ogcio/design-system-react/styles.css';
+/*
+ * Self-hosted Material Symbols Outlined. The gov.ie Icon component falls
+ * through to a <span class="material-symbols-outlined"> font ligature for
+ * any icon name without a dedicated SVG component, but the design system
+ * doesn't ship the font itself. We can't load it from Google's CDN because
+ * the build/runtime environment blocks external font requests, so we ship
+ * it locally (same pattern as @fontsource/lato).
+ */
+@import 'material-symbols/outlined.css';
 
 @tailwind base;
 @tailwind components;

@@ -16,6 +16,7 @@
     "@ogcio/design-system-tailwind": "^1.25.0",
     "@ogcio/design-system-tokens": "^1.22.1",
     "@ogcio/theme-govie": "^1.21.5",
+    "material-symbols": "^0.44.6",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"
   },
