@@ -97,15 +97,38 @@ export function TodoList() {
               {listName}
             </Heading>
             {isUserList && activeList !== undefined ? (
-              <IconButton
-                type="button"
-                variant="flat"
-                size="sm"
-                ariaLabel={t('sidebar.rename', { name: activeList.name })}
-                onClick={() => setRenamingActiveList(true)}
-              >
-                <Icon icon="edit" size="sm" ariaHidden />
-              </IconButton>
+              <div className="flex items-center gap-1">
+                <IconButton
+                  type="button"
+                  variant="flat"
+                  size="sm"
+                  ariaLabel={t('sidebar.rename', { name: activeList.name })}
+                  onClick={() => setRenamingActiveList(true)}
+                >
+                  <Icon icon="edit" size="sm" ariaHidden />
+                </IconButton>
+                <IconButton
+                  type="button"
+                  variant="flat"
+                  size="sm"
+                  ariaLabel={t('sidebar.delete', { name: activeList.name })}
+                  onClick={() => {
+                    if (
+                      !window.confirm(
+                        t('sidebar.confirmDelete', { name: activeList.name }),
+                      )
+                    ) {
+                      return;
+                    }
+                    dispatch({
+                      type: 'DELETE_LIST',
+                      payload: { id: activeList.id },
+                    });
+                  }}
+                >
+                  <Icon icon="delete" size="sm" ariaHidden />
+                </IconButton>
+              </div>
             ) : null}
           </>
         )}

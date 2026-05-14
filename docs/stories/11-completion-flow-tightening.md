@@ -8,7 +8,7 @@
 - **The active view state persists.** `showCompleted` and the active smart-view selection now write to localStorage alongside `lists` / `todos` / `activeListId`, so the user's preference survives a reload.
 - **New smart view: "Completed".** A second sibling under "All tasks" in the sidebar, with a check-circle icon. Selecting it shows every completed task across every list, sorted however they currently sort. Re-completing or un-completing from this view works as on any other list.
 - **Flags removed entirely.** `flagged` property on `Todo`, `TOGGLE_FLAG` / `SET_FLAGGED_ONLY` reducer cases, `Filters.flaggedOnly`, the per-row flag button, the amber left-border styling, the "Flagged only" filter button, the custom `FlagIcon` SVG, and the en/ga flag translation keys are all gone. Persisted v2 data containing `flagged` reads silently and the field is ignored.
-- **Rename is on the list title, not in the sidebar.** The pencil that used to sit beside each user list in the `SideNav` now lives at the right of the list-title heading in the main content area. The sidebar row only shows a hover-revealed delete now. Smart views ("All tasks", "Completed") have no rename affordance (they aren't user data).
+- **Both list-management actions are on the title, not in the sidebar.** The pencil (rename) and bin (delete) that used to sit beside each user list in the `SideNav` now live as a pair at the right of the list-title heading in the main content area. Sidebar rows show only the list name and its count — no action buttons at all. Smart views ("All tasks", "Completed") have no rename or delete affordance (they aren't user data and can't be removed).
 
 ### Cuts inside this epic
 

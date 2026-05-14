@@ -1,7 +1,5 @@
 import {
   Button,
-  Icon,
-  IconButton,
   InputText,
   SideNav,
   SideNavHeading,
@@ -17,7 +15,7 @@ import {
 
 import { useT } from '../../i18n/I18nContext';
 import { useTodos } from '../../state/TodosContext';
-import type { List, ListId } from '../../state/types';
+import type { ListId } from '../../state/types';
 
 const SMART_ALL_VALUE = '__all__';
 const SMART_COMPLETED_VALUE = '__completed__';
@@ -65,11 +63,6 @@ export function Sidebar({ onNavigate }: SidebarProps) {
     onNavigate?.();
   }
 
-  function handleDelete(list: List) {
-    if (!window.confirm(t('sidebar.confirmDelete', { name: list.name }))) return;
-    dispatch({ type: 'DELETE_LIST', payload: { id: list.id } });
-  }
-
   const selectedValue =
     state.activeListId !== null
       ? state.activeListId
@@ -104,10 +97,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
         {state.lists.map((list) => {
           const count = counts.byList.get(list.id) ?? 0;
           return (
-            <div
-              key={list.id}
-              className="group/list flex items-center gap-1 pr-2"
-            >
+            <div key={list.id} className="flex items-center gap-1 pr-3">
               <div className="min-w-0 flex-1">
                 <SideNavItem value={list.id} label={list.name} />
               </div>
@@ -119,17 +109,6 @@ export function Sidebar({ onNavigate }: SidebarProps) {
                   {count}
                 </span>
               ) : null}
-              <span className="opacity-100 transition-opacity sm:opacity-0 sm:group-hover/list:opacity-100 sm:group-focus-within/list:opacity-100">
-                <IconButton
-                  type="button"
-                  variant="flat"
-                  size="sm"
-                  ariaLabel={t('sidebar.delete', { name: list.name })}
-                  onClick={() => handleDelete(list)}
-                >
-                  <Icon icon="delete" size="sm" ariaHidden />
-                </IconButton>
-              </span>
             </div>
           );
         })}
