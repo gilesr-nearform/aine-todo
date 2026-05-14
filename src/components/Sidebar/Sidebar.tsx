@@ -97,27 +97,29 @@ export function Sidebar({ onNavigate }: SidebarProps) {
           return (
             <div
               key={list.id}
-              className="group/list relative flex items-center gap-1"
+              className="group/list flex items-center gap-1 pr-2"
             >
-              <div className="flex-1">
+              <div className="min-w-0 flex-1">
                 <SideNavItem value={list.id} label={list.name} />
               </div>
               {count > 0 ? (
-                <CountBadge
-                  count={count}
-                  className="sm:group-hover/list:opacity-0 sm:group-focus-within/list:opacity-0"
-                />
-              ) : null}
-              <div className="absolute right-1 flex items-center gap-0.5 opacity-100 transition-opacity sm:opacity-0 sm:group-hover/list:opacity-100 sm:group-focus-within/list:opacity-100">
-                <IconButton
-                  type="button"
-                  variant="flat"
-                  size="sm"
-                  ariaLabel={`Rename '${list.name}'`}
-                  onClick={() => setRenamingId(list.id)}
+                <span
+                  aria-hidden
+                  className="pointer-events-none text-xs font-medium tabular-nums text-gray-500"
                 >
-                  <Icon icon="edit" size="sm" ariaHidden />
-                </IconButton>
+                  {count}
+                </span>
+              ) : null}
+              <IconButton
+                type="button"
+                variant="flat"
+                size="sm"
+                ariaLabel={`Rename '${list.name}'`}
+                onClick={() => setRenamingId(list.id)}
+              >
+                <Icon icon="edit" size="sm" ariaHidden />
+              </IconButton>
+              <span className="opacity-100 transition-opacity sm:opacity-0 sm:group-hover/list:opacity-100 sm:group-focus-within/list:opacity-100">
                 <IconButton
                   type="button"
                   variant="flat"
@@ -127,7 +129,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
                 >
                   <Icon icon="delete" size="sm" ariaHidden />
                 </IconButton>
-              </div>
+              </span>
             </div>
           );
         })}
