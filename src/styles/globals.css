@@ -163,6 +163,31 @@
 }
 
 /*
+ * List-pane action buttons (Clear completed, Hide/Show, Edit, Delete) opt into
+ * a calmer colour in dark mode via this class hook. We can't use Tailwind's
+ * `dark:!text-*` directly on the gov.ie Button — both classes resolve to the
+ * same specificity as the design system's `gi-text-color-*` rule, and gov.ie's
+ * Button atom doesn't forward arbitrary `data-*` attributes. A bespoke,
+ * non-Tailwind class survives tailwind-merge and the descendant selector adds
+ * just enough specificity to win. Light mode is left to the design system.
+ */
+[data-theme='govie-dark'] .list-action-btn {
+  /* Hardcoded standard cool gray-200 (#e5e7eb): the design system's
+   * --gieds-color-gray-200 is remapped to a dark emerald above, which would
+   * render these buttons nearly invisible. */
+  color: #e5e7eb;
+}
+[data-theme='govie-dark'] .list-action-btn.list-action-btn--outline {
+  border-color: #e5e7eb;
+}
+[data-theme='govie-dark'] .list-action-btn:hover {
+  color: #f3f4f6;
+}
+[data-theme='govie-dark'] .list-action-btn.list-action-btn--outline:hover {
+  border-color: #f3f4f6;
+}
+
+/*
  * Secondary + flat (outline / text-only) buttons.
  *
  * Gov.ie maps both `text-tone-primary-outline-*` and `text-tone-primary-flat-*`
