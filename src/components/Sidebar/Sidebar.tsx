@@ -1,5 +1,6 @@
 import {
   Button,
+  Icon,
   InputText,
   SideNav,
   SideNavHeading,
@@ -123,11 +124,12 @@ export function Sidebar({ onNavigate }: SidebarProps) {
         />
         <Button
           type="submit"
-          variant="secondary"
+          variant="primary"
           size="sm"
           disabled={draft.trim().length === 0}
         >
-          {t('sidebar.addList')}
+          <Icon icon="add_circle" size="sm" ariaHidden />
+          <span>{t('sidebar.addList')}</span>
         </Button>
       </form>
     </nav>

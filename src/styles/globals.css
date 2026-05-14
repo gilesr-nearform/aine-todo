@@ -180,7 +180,14 @@
   --gieds-color-text-tone-primary-flat-hover: var(--gieds-color-primary-300);
   --gieds-color-border-tone-primary-outline-default: var(--gieds-color-primary-400);
   --gieds-color-border-tone-primary-outline-hover: var(--gieds-color-primary-300);
+
+  /*
+   * Hover-fill for outline / flat buttons defaults to primary-50 (pale mint).
+   * On a dark page that flashes bright on every hover. Drop both hover fills
+   * to primary-800 (dark emerald) so hover reads as a subtle elevated tint.
+   */
   --gieds-color-surface-tone-primary-outline-hover: var(--gieds-color-primary-800);
+  --gieds-color-surface-tone-primary-flat-hover: var(--gieds-color-primary-800);
 }
 
 
