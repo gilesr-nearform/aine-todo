@@ -1,0 +1,73 @@
+---
+description: Master project rules for ListLens — a personal todo app using the Government of Ireland Design System, built as an SDD training deliverable.
+alwaysApply: true
+---
+
+# ListLens — Cursor Project Rules
+
+> Cursor reads this on every session. It mirrors `CLAUDE.md` so both AI tools work from the same source of truth.
+
+## Project context
+
+**Working name:** ListLens *(placeholder)*
+
+**What it is:** A personal todo app prototype. Four core actions: create, view, complete, delete. Mock data only. Built using the Government of Ireland Design System. Deliverable for an AI training programme on Spec-Driven Development.
+
+**Source of truth:** The BMAD specs in `docs/`. Implementation follows specs, not the other way around.
+
+## Read these before generating code
+
+1. `docs/brief.md` — Analyst output, scope, decision log
+2. `docs/prd.md` — refined PRD with UI requirements
+3. `docs/architecture.md` — stack, state, gov.ie integration
+4. `docs/component-inventory.md` — components and flows
+5. `docs/ux-spec.md` — defers to gov.ie design system
+6. `docs/stories/<story-id>.md` — the specific story being implemented
+
+If asked for something not covered in the docs, **ask for the spec first** rather than improvising.
+
+## Stack
+
+- Vite + React 18 + TypeScript (strict)
+- `@ogcio/design-system-react`, `@ogcio/design-system-tokens`, `@ogcio/design-system-tailwind`, `@ogcio/theme-govie`
+- Tailwind CSS with gov.ie preset
+- React Context + useReducer for state, persisted to `localStorage` (`listlens:v1:todos`)
+- Mock data only for the load simulator. No backend. No real APIs. No AI calls.
+
+## Design ethos — Government of Ireland Design System
+
+When implementing UI:
+1. Check the [gov.ie React Storybook](https://ds.services.gov.ie/storybook-react/) for an existing component
+2. If gov.ie has it → import from `@ogcio/design-system-react`
+3. If gov.ie doesn't have it → build custom *using gov.ie tokens*
+4. **Never override gov.ie token values**
+
+Voice: plain English, sentence case, direct. No emoji. No exclamations. Match the gov.ie tone across public-sector services.
+
+## Hard rules
+
+- **TypeScript strict mode.** No `any`. No `@ts-ignore` without an inline comment.
+- **All interactive components must ship with all states:** hover, focus, active, disabled.
+- **All UI states must ship polished:** empty, loading, error, populated.
+- **No features outside the official PRD.** Photo-scan is cut from v1.
+- **No new dependencies** without checking `docs/architecture.md`.
+- **No deployment, no PWA, no exports, no integrations.**
+- **No overriding gov.ie design system tokens.** Use the system; extend only for gaps.
+- **Update the decision log** in `docs/brief.md` for any non-trivial choice.
+
+## Build order — strict
+
+1. App shell, state plumbing, gov.ie design system installed and verified working
+2. localStorage persistence (Story 1.4 — required, not optional)
+3. Core components using gov.ie primitives where available
+4. Create / complete / delete flows wired with mock data + persistence
+5. Empty / loading / error states — all polished
+6. Responsive pass — mobile breakpoints, real-device check
+7. Interaction states pass — every component
+8. Day-5 evaluation point: completion-grouping decision (Story 5.4)
+
+## When the user asks for something
+
+- If it's covered by an existing story: implement against the story's acceptance criteria.
+- If it's not covered: ask which story this belongs to, or whether a new story is needed.
+- If it contradicts the brief or PRD: flag it explicitly before doing anything.
