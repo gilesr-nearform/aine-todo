@@ -4,6 +4,12 @@ Personal todo app prototype built using the Government of Ireland Design System.
 
 The BMAD planning artifacts in [docs/](docs/) are the source of truth. See [CLAUDE.md](CLAUDE.md) for the AI-agent context and [docs/stories/](docs/stories/) for the build-order user stories.
 
+## View it live
+
+The `main` branch auto-deploys to GitHub Pages on every push: **https://gilesr-nearform.github.io/aine-todo/**
+
+This is a deliberate exception to the Day-0 "no deployment" decision in `docs/brief.md` §9, scoped to making the prototype reviewable via a single link rather than a clone-and-run handoff. The deploy workflow lives at `.github/workflows/deploy.yml`.
+
 ## Setup
 
 > Placeholder. To be expanded across the week as stories land.
