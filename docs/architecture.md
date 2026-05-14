@@ -81,35 +81,67 @@ listlens/
 
 ## 3. Installing the gov.ie design system
 
-Day-1 install commands (verify against current docs as versions move):
+> **Updated Day 1** to match the packages as actually shipped on npm. The decision log in `brief.md` §9 captures the three deviations from the original draft (`createTheme` vs default preset, theme-package CSS path vs non-existent tokens CSS, Tailwind pinned to v3).
+
+### 3.1 Install
 
 ```bash
 pnpm add @ogcio/design-system-react @ogcio/design-system-tokens @ogcio/design-system-tailwind @ogcio/theme-govie
+pnpm add -D tailwindcss@^3.4 postcss autoprefixer
 ```
 
-Then in `tailwind.config.ts`:
+Tailwind is pinned to `^3.4`. The gov.ie preset declares `tailwindcss >=3.4.0` as its peer dep and is typed against `tailwindcss/types/config.js` — a Tailwind 3 module. Tailwind 4's CSS-first config model would not consume the gov.ie preset as designed.
+
+### 3.2 Tailwind config
+
+`@ogcio/design-system-tailwind` exports `{ createTheme }`, **not** a default preset. Wire it via the `theme` field:
 
 ```ts
+// tailwind.config.ts
 import type { Config } from 'tailwindcss';
-import preset from '@ogcio/design-system-tailwind';
+import { createTheme } from '@ogcio/design-system-tailwind';
 
 export default {
   content: ['./src/**/*.{ts,tsx}'],
-  presets: [preset],
+  theme: createTheme(),
 } satisfies Config;
 ```
 
-In `src/styles/globals.css` (verify import paths against current docs — these are the conventional locations):
+To extend or override, pass options to `createTheme({ overrides: { extend: { ... } } })`. Don't override gov.ie token values; only extend with custom utilities the design system genuinely lacks.
+
+### 3.3 Global CSS
+
+The `@ogcio/design-system-tokens` package only ships JS exports — there is no `tokens.css` to import. CSS variables come from `@ogcio/theme-govie`; component CSS comes from `@ogcio/design-system-react`. This matches the gov.ie React README and the official Vite reference example.
 
 ```css
-@import '@ogcio/design-system-tokens/dist/tokens.css';
-@import '@ogcio/theme-govie/dist/theme.css';
+/* src/styles/globals.css */
+@import '@ogcio/theme-govie/theme.css';
+@import '@ogcio/design-system-react/styles.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 ```
 
-**Day-1 verification step:** before any UI stories, run a smoke test that imports a `Button` from `@ogcio/design-system-react`, renders it, and confirms it renders with gov.ie styling. If that fails, the rest of the build can't proceed — flag immediately.
+Import this file once from `src/main.tsx`.
+
+### 3.4 PostCSS config
+
+Standard Tailwind 3 setup:
+
+```js
+// postcss.config.js
+export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+};
+```
+
+### 3.5 Day-1 verification step
+
+Before any UI stories, run a smoke test that imports a `Button` from `@ogcio/design-system-react`, renders it, and confirms it appears with gov.ie styling (Lato font, gov.ie green primary, design-system focus ring on tab). If that fails, the rest of the build can't proceed — flag immediately.
 
 ## 4. State management
 
