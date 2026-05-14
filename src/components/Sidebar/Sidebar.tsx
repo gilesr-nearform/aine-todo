@@ -97,18 +97,9 @@ export function Sidebar({ onNavigate }: SidebarProps) {
         {state.lists.map((list) => {
           const count = counts.byList.get(list.id) ?? 0;
           return (
-            <div key={list.id} className="flex items-center gap-1 pr-3">
-              <div className="min-w-0 flex-1">
-                <SideNavItem value={list.id} label={list.name} />
-              </div>
-              {count > 0 ? (
-                <span
-                  aria-hidden
-                  className="pointer-events-none text-xs font-medium tabular-nums text-gray-500"
-                >
-                  {count}
-                </span>
-              ) : null}
+            <div key={list.id} className="relative">
+              <SideNavItem value={list.id} label={list.name} />
+              {count > 0 ? <CountBadge count={count} /> : null}
             </div>
           );
         })}
