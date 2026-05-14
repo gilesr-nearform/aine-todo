@@ -181,6 +181,11 @@ The reducer handles exactly these actions. Adding a new one is a decision-log en
 | `UNDO_DELETE` | `{ id: TodoId }` | Restores the todo from `recentlyDeleted` to its `originalIndex` in `todos` |
 | `EXPIRE_DELETED` | `{ id: TodoId }` | Removes a `DeletedRecord` from `recentlyDeleted` (after the toast's undo window closes) |
 | `REORDER_TODO` | `{ id: TodoId, direction: 'up' \| 'down' }` | Swaps the todo with its neighbour in `todos`. No-op if already at the boundary. Added in Epic 06 — see `brief.md` §9. |
+| `UPDATE_TODO` | `{ id: TodoId, description: string, notes?: string }` | Updates description and notes for a single todo. Trims both. No-op if trimmed description is empty. Added in Epic 07. |
+| `TOGGLE_FLAG` | `{ id: TodoId }` | Inverts the `flagged` boolean on the todo. Added in Epic 07. |
+| `SET_SEARCH` | `{ value: string }` | Updates `filters.search`. Not persisted. Added in Epic 07. |
+| `SET_FLAGGED_ONLY` | `{ value: boolean }` | Updates `filters.flaggedOnly`. Not persisted. Added in Epic 07. |
+| `SET_SHOW_COMPLETED` | `{ value: boolean }` | Updates `filters.showCompleted`. Not persisted. Added in Epic 07. |
 
 ### 4.3 Why a reducer (vs. plain useState)
 

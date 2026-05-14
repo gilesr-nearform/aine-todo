@@ -7,6 +7,8 @@ export interface Todo {
   description: string;
   completed: boolean;
   createdAt: Date;
+  notes?: string;
+  flagged: boolean;
 }
 
 export interface DeletedRecord {
@@ -15,10 +17,18 @@ export interface DeletedRecord {
   expiresAt: number;
 }
 
+export interface Filters {
+  search: string;
+  flaggedOnly: boolean;
+  showCompleted: boolean;
+}
+
 export interface AppState {
   status: LoadStatus;
   todos: Todo[];
   recentlyDeleted: DeletedRecord[];
+  filters: Filters;
+  editingId: TodoId | null;
 }
 
 export type Action =
@@ -34,10 +44,28 @@ export type Action =
   | {
       type: 'REORDER_TODO';
       payload: { id: TodoId; direction: 'up' | 'down' };
-    };
+    }
+  | {
+      type: 'UPDATE_TODO';
+      payload: { id: TodoId; description: string; notes?: string };
+    }
+  | { type: 'TOGGLE_FLAG'; payload: { id: TodoId } }
+  | { type: 'SET_SEARCH'; payload: { value: string } }
+  | { type: 'SET_FLAGGED_ONLY'; payload: { value: boolean } }
+  | { type: 'SET_SHOW_COMPLETED'; payload: { value: boolean } }
+  | { type: 'START_EDIT'; payload: { id: TodoId } }
+  | { type: 'CANCEL_EDIT' };
+
+export const defaultFilters: Filters = {
+  search: '',
+  flaggedOnly: false,
+  showCompleted: true,
+};
 
 export const initialState: AppState = {
   status: 'idle',
   todos: [],
   recentlyDeleted: [],
+  filters: defaultFilters,
+  editingId: null,
 };

@@ -7,17 +7,34 @@ interface PersistedTodo {
   description: string;
   completed: boolean;
   createdAt: string;
+  notes?: string;
+  flagged?: boolean;
 }
 
 function isPersistedTodo(value: unknown): value is PersistedTodo {
   if (typeof value !== 'object' || value === null) return false;
   const record = value as Record<string, unknown>;
-  return (
-    typeof record.id === 'string' &&
-    typeof record.description === 'string' &&
-    typeof record.completed === 'boolean' &&
-    typeof record.createdAt === 'string'
-  );
+  if (
+    typeof record.id !== 'string' ||
+    typeof record.description !== 'string' ||
+    typeof record.completed !== 'boolean' ||
+    typeof record.createdAt !== 'string'
+  ) {
+    return false;
+  }
+  if (
+    record.notes !== undefined &&
+    typeof record.notes !== 'string'
+  ) {
+    return false;
+  }
+  if (
+    record.flagged !== undefined &&
+    typeof record.flagged !== 'boolean'
+  ) {
+    return false;
+  }
+  return true;
 }
 
 export function readFromStorage(): Todo[] {
@@ -44,6 +61,10 @@ export function readFromStorage(): Todo[] {
         description: entry.description,
         completed: entry.completed,
         createdAt: new Date(entry.createdAt),
+        ...(entry.notes !== undefined && entry.notes !== ''
+          ? { notes: entry.notes }
+          : {}),
+        flagged: entry.flagged ?? false,
       });
     }
     return todos;

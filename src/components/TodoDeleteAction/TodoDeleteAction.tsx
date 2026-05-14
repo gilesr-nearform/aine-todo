@@ -19,12 +19,12 @@ export function TodoDeleteAction({
     <IconButton
       type="button"
       variant="flat"
-      size="md"
+      size="sm"
       ariaLabel={`Delete '${description}'`}
       onClick={() => dispatch({ type: 'DELETE_TODO', payload: { id } })}
       className={className}
     >
-      <Icon icon="delete" size="md" ariaHidden />
+      <Icon icon="delete" size="sm" ariaHidden />
     </IconButton>
   );
 }

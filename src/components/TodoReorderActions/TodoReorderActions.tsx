@@ -7,6 +7,7 @@ interface TodoReorderActionsProps {
   description: string;
   index: number;
   total: number;
+  disabled?: boolean;
   className?: string;
 }
 
@@ -15,6 +16,7 @@ export function TodoReorderActions({
   description,
   index,
   total,
+  disabled = false,
   className,
 }: TodoReorderActionsProps) {
   const { dispatch } = useTodos();
@@ -28,7 +30,7 @@ export function TodoReorderActions({
         variant="flat"
         size="sm"
         ariaLabel={`Move '${description}' up`}
-        disabled={isFirst}
+        disabled={disabled || isFirst}
         onClick={() =>
           dispatch({
             type: 'REORDER_TODO',
@@ -43,7 +45,7 @@ export function TodoReorderActions({
         variant="flat"
         size="sm"
         ariaLabel={`Move '${description}' down`}
-        disabled={isLast}
+        disabled={disabled || isLast}
         onClick={() =>
           dispatch({
             type: 'REORDER_TODO',
