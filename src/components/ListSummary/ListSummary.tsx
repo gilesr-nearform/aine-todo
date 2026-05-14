@@ -46,7 +46,7 @@ export function ListSummary({
       <div className="flex flex-wrap items-center gap-2">
         <Button
           type="button"
-          variant="secondary"
+          variant="flat"
           size="sm"
           disabled={completed === 0}
           onClick={() => setClearOpen(true)}
