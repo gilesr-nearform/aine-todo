@@ -71,7 +71,7 @@ export function TodoEditor({ todo }: TodoEditorProps) {
       onSubmit={handleSubmit}
       onKeyDown={handleKeyDown}
       aria-label={t('todo.edit', { description: todo.description })}
-      className="mt-2 flex w-full flex-col gap-3 rounded-md border border-gray-300 bg-gray-50 p-3"
+      className="mt-2 flex w-full flex-col gap-3 rounded-md border border-gray-300 bg-gray-100 p-3"
     >
       <div className="flex flex-col gap-1">
         <label

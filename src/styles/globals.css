@@ -71,25 +71,48 @@
  */
 [data-theme='govie-dark'] {
   /*
-   * Page surface uses gov.ie emerald-900 (#003630) so the dark UI keeps a
-   * hint of the gov.ie identity rather than reading as neutral slate.
-   * Everything else in the inverted gray scale stays neutral so hover
-   * states, borders and dividers don't pull the whole UI green.
+   * Coherent emerald-tinted dark palette.
+   *
+   * The dark end of the inverted gray scale (50–300) uses gov.ie emerald
+   * shades so the dark UI keeps a hint of the gov.ie identity — surfaces,
+   * elevated cards, hovers and dividers all sit in the same family.
+   * The light end (600–950) uses desaturated cool neutrals for text so
+   * everything stays calm and readable rather than looking minty.
+   *
+   * Contrast targets (against the page surface emerald-900 #003630):
+   *   gray-950 (primary text)       ~12.4:1  AAA
+   *   gray-800 (headings)           ~10.7:1  AAA
+   *   gray-700 (body)                ~8.3:1  AAA
+   *   gray-600 (secondary text)      ~5.7:1  AA  ✓ normal text
+   *   gray-500 (hint / placeholder)  ~3.5:1  AA  ✓ large text only
+   *   gray-400 (muted icon, border)  ~2.1:1  decorative UI element
+   *   gray-300 (subtle divider)      ~1.6:1  decorative
    */
   --gieds-color-neutral-white: var(--gieds-color-emerald-900);
   --gieds-color-base-white: var(--gieds-color-emerald-900);
 
-  --gieds-color-gray-50: var(--gieds-color-emerald-900);
-  --gieds-color-gray-100: #111827;
-  --gieds-color-gray-200: #1f2937;
-  --gieds-color-gray-300: #374151;
-  --gieds-color-gray-400: #4b5563;
-  --gieds-color-gray-500: #6b7280;
-  --gieds-color-gray-600: #9ca3af;
-  --gieds-color-gray-700: #d1d5db;
-  --gieds-color-gray-800: #e5e7eb;
-  --gieds-color-gray-900: #f3f4f6;
-  --gieds-color-gray-950: #f9fafb;
+  --gieds-color-gray-50: #003630;   /* page surface (= emerald-900) */
+  --gieds-color-gray-100: #00433c;  /* slightly elevated surface */
+  --gieds-color-gray-200: #004d44;  /* hover bg (= emerald-800) */
+  --gieds-color-gray-300: #075e54;  /* subtle divider */
+  --gieds-color-gray-400: #1f7268;  /* visible border / muted icon */
+  --gieds-color-gray-500: #5a8f88;  /* hint / placeholder */
+  --gieds-color-gray-600: #8db1ab;  /* secondary text */
+  --gieds-color-gray-700: #c8dcd7;  /* body text */
+  --gieds-color-gray-800: #e0ebe8;  /* heading text */
+  --gieds-color-gray-900: #edf3f1;  /* high-emphasis text */
+  --gieds-color-gray-950: #f5f9f7;  /* primary text (cool near-white) */
+
+  /*
+   * In light mode `--gieds-color-neutral-50` and `--gieds-color-gray-50` both
+   * map to the same near-white, used differently:
+   *   gray-50  = lightest rung in the scale (page surface in light)
+   *   neutral-50 = "layer 1" / subtle elevation / selected-subtle backgrounds
+   * After inversion they would both equal the page emerald, which would make
+   * the selected SideNavItem invisible against the page. Break them apart in
+   * dark mode by giving neutral-50 a slight lift above the page surface.
+   */
+  --gieds-color-neutral-50: #073d36;
 }
 
 /*

@@ -78,7 +78,7 @@ export function TodoItem({
               {todo.notes}
             </p>
           ) : null}
-          <span className="text-xs text-gray-500">{createdAtLabel}</span>
+          <span className="text-xs text-gray-600">{createdAtLabel}</span>
         </div>
         {!isEditing ? (
           <div className="flex items-start gap-1 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">

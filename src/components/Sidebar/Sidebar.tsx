@@ -143,7 +143,7 @@ function CountBadge({ count, className }: CountBadgeProps) {
   return (
     <span
       aria-hidden
-      className={`pointer-events-none absolute right-3 top-1/2 z-100 -translate-y-1/2 text-xs font-medium tabular-nums text-gray-500 transition-opacity ${className ?? ''}`.trim()}
+      className={`pointer-events-none absolute right-3 top-1/2 z-100 -translate-y-1/2 text-xs font-medium tabular-nums text-gray-600 transition-opacity ${className ?? ''}`.trim()}
     >
       {count}
     </span>
