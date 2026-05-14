@@ -51,3 +51,50 @@
     }
   }
 }
+
+/*
+ * Dark mode (Story 12).
+ *
+ * Gov.ie's @ogcio/theme-govie ships a `dark.css` sheet but its variable values
+ * are byte-identical to the `light.css` sheet — they haven't published actual
+ * dark token values yet. The project rule ("never override gov.ie token
+ * values") was written assuming the design system would supply dark tokens
+ * eventually; until then this is the scoped exception, documented in
+ * docs/brief.md and docs/stories/12-theme-switcher.md.
+ *
+ * Strategy: invert the neutral/gray scale under [data-theme="govie-dark"].
+ * Almost every gov.ie semantic surface/text/border token cascades through
+ * --gieds-color-neutral-N → --gieds-color-gray-N, and Tailwind utilities like
+ * bg-gray-200 also resolve to the same custom properties — so flipping the
+ * primitives flips both layers in one go. Brand colours (greens, blues, etc.)
+ * are deliberately untouched.
+ */
+[data-theme='govie-dark'] {
+  --gieds-color-neutral-white: #0b1220;
+  --gieds-color-base-white: #0b1220;
+
+  --gieds-color-gray-50: #0b1220;
+  --gieds-color-gray-100: #111827;
+  --gieds-color-gray-200: #1f2937;
+  --gieds-color-gray-300: #374151;
+  --gieds-color-gray-400: #4b5563;
+  --gieds-color-gray-500: #6b7280;
+  --gieds-color-gray-600: #9ca3af;
+  --gieds-color-gray-700: #d1d5db;
+  --gieds-color-gray-800: #e5e7eb;
+  --gieds-color-gray-900: #f3f4f6;
+  --gieds-color-gray-950: #f9fafb;
+}
+
+/*
+ * Tailwind's `bg-white` is hardcoded to `#ffffff` (not a CSS variable), so the
+ * primitive inversion above doesn't reach it. Scope a single utility override
+ * to dark mode; specificity (0,2,0) beats Tailwind's (0,1,0) without
+ * `!important`. Same for the rare uses of `text-white` and `border-white` in
+ * our own surfaces — gov.ie's `gi-text-white` etc. are separate classes and
+ * stay light intentionally (used on green header chrome).
+ */
+[data-theme='govie-dark'] .bg-white {
+  background-color: var(--gieds-color-neutral-white);
+}
+

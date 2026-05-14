@@ -7,7 +7,7 @@ import { UndoToastContainer } from '../UndoToast/UndoToastContainer';
 
 export function AppShell() {
   return (
-    <div className="flex h-dvh w-full flex-col bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100">
+    <div className="flex h-dvh w-full flex-col bg-white text-gray-900">
       <GovieBranding />
       <Header />
       <div className="flex min-h-0 flex-1">
@@ -17,7 +17,7 @@ export function AppShell() {
         <div className="flex min-h-0 flex-1 flex-col">
           <MainContent />
           <div
-            className="w-full border-t border-gray-200 bg-white px-4 pt-3 dark:border-gray-800 dark:bg-gray-950 sm:px-6"
+            className="w-full border-t border-gray-200 bg-white px-4 pt-3 sm:px-6"
             style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
           >
             <div className="mb-3 flex justify-center">

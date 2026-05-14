@@ -29,7 +29,7 @@ export function UndoToast({
   );
 
   return (
-    <div className="pointer-events-auto flex w-full max-w-md flex-col gap-2 rounded-md border border-gray-200 bg-gray-900 px-4 py-3 text-white shadow-lg">
+    <div className="pointer-events-auto flex w-full max-w-md flex-col gap-2 rounded-md border border-gray-200 bg-gray-900 px-4 py-3 text-gray-50 shadow-lg">
       <div className="flex items-center justify-between gap-3">
         <span className="min-w-0 flex-1 truncate text-sm">
           {t('undo.deleted', { description: record.todo.description })}
@@ -45,11 +45,11 @@ export function UndoToast({
         </Button>
       </div>
       <div
-        className="h-0.5 w-full overflow-hidden rounded-full bg-white/20 motion-reduce:hidden"
+        className="h-0.5 w-full overflow-hidden rounded-full bg-gray-50/20 motion-reduce:hidden"
         aria-hidden
       >
         <div
-          className="h-full bg-white/70"
+          className="h-full bg-gray-50/70"
           style={{
             width: '100%',
             animation: `undo-toast-countdown ${remainingMs}ms linear forwards`,

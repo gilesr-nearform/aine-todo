@@ -73,7 +73,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
   return (
     <nav
       aria-label={t('sidebar.aria')}
-      className="flex w-full flex-col gap-3 border-r border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-950 md:h-full md:w-[260px]"
+      className="flex w-full flex-col gap-3 border-r border-gray-200 bg-white p-3 md:h-full md:w-[260px]"
     >
       <SideNav
         value={selectedValue}

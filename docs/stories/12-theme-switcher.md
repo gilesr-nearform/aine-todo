@@ -3,10 +3,25 @@
 ## Why
 
 Personal-use prototype. The user wants the option to flip the app into a dark
-appearance for low-light workdays. Gov.ie design tokens already publish a paired
-`[data-theme="govie-light"]` / `[data-theme="govie-dark"]` sheet, so we can opt
-into dark mode without touching design-system token values — the rule we agreed
-in `docs/brief.md`.
+appearance for low-light workdays. Gov.ie publishes paired
+`[data-theme="govie-light"]` / `[data-theme="govie-dark"]` selector sheets, so
+the application-level switch is officially supported via a single attribute on
+`<html>`.
+
+**Important caveat:** as of this writing, `@ogcio/theme-govie/dark.css` is
+byte-identical to `light.css` aside from the selector. Gov.ie hasn't published
+real dark token values yet. To actually deliver a dark appearance we have to
+override gov.ie tokens ourselves under the `[data-theme="govie-dark"]` selector.
+This is a scoped, deliberate exception to the project rule "never override
+gov.ie token values" (`docs/brief.md` decision log entry, Epic 12). The
+override is constrained to:
+
+- The neutral primitives (`--gieds-color-neutral-white`, `--gieds-color-base-white`)
+- The gray scale (`--gieds-color-gray-50` … `--gieds-color-gray-950`), which
+  semantic surface/text/border tokens cascade through
+
+Brand colours (greens, blues, reds, etc.) and intent tokens are untouched, so
+the gov.ie identity remains intact.
 
 ## Scope
 
@@ -19,19 +34,24 @@ in `docs/brief.md`.
   row as the "ToDo" title. The icon flips between `light_mode` and `dark_mode`
   Material Symbols. `ariaLabel` reads "Switch to dark mode" / "Switch to light
   mode" (translated into Gaeilge as well).
-- Configure Tailwind's `darkMode` to follow `[data-theme="govie-dark"]` so we
-  can add `dark:` variants on the surfaces we authored ourselves (AppShell, the
-  list pane, the sidebar background, body text).
+- Invert the neutral primitives and gray scale under `[data-theme="govie-dark"]`
+  in `src/styles/globals.css` so both gov.ie semantic tokens and our Tailwind
+  utilities (`bg-gray-200`, `text-gray-700`, etc., which resolve to the same
+  CSS variables) flip together. Add a single utility-level override for
+  `.bg-white` because Tailwind hardcodes white as `#ffffff`, not a variable.
 - Persist the theme across reloads. Respect `prefers-color-scheme` only on the
   very first run when no preference is stored.
 
 ## Cuts
 
-- We do **not** ship per-component dark overrides. Gov.ie's own dark token
-  sheet handles components; we only flip the surfaces we authored.
+- No per-component, fully designed dark palette — the scale inversion gets us
+  a competent dark surface set without inventing a parallel design system.
 - No system / auto mode UI — the toggle is a binary flip. The OS preference is
   used once, at first paint, as the initial default.
 - No animation on the swap.
+- Brand colours and intent tokens (success, error, warning, info, focus) are
+  deliberately not touched. If a future iteration wants tuned dark variants of
+  the gov.ie green, that's a separate decision.
 
 ## Accessibility
 
