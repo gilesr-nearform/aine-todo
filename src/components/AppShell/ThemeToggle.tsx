@@ -1,27 +1,23 @@
-import { HeaderMenuItemButton } from '@ogcio/design-system-react';
-
+/* eslint-disable react-refresh/only-export-components -- co-locating hook with icon helpers is intentional; both are only consumed by Header. */
 import { useT } from '../../i18n/I18nContext';
 import { useTheme } from '../../theme/ThemeContext';
 
-export function ThemeToggle() {
+export interface ThemeToggleState {
+  isDark: boolean;
+  label: string;
+  toggle: () => void;
+}
+
+export function useThemeToggle(): ThemeToggleState {
   const t = useT();
   const { theme, toggleTheme } = useTheme();
-  const goingTo: 'light' | 'dark' = theme === 'dark' ? 'light' : 'dark';
-  const label =
-    goingTo === 'dark' ? t('header.themeToDark') : t('header.themeToLight');
+  const isDark = theme === 'dark';
+  const label = isDark ? t('header.themeToLight') : t('header.themeToDark');
+  return { isDark, label, toggle: toggleTheme };
+}
 
-  return (
-    <HeaderMenuItemButton
-      type="button"
-      showItemMode="always"
-      onClick={toggleTheme}
-      aria-label={label}
-      aria-pressed={theme === 'dark'}
-      title={label}
-    >
-      {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
-    </HeaderMenuItemButton>
-  );
+export function ThemeIcon({ isDark }: { isDark: boolean }) {
+  return isDark ? <SunIcon /> : <MoonIcon />;
 }
 
 function SunIcon() {
