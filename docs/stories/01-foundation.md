@@ -36,7 +36,7 @@ As a developer, I need a working Vite + React + TypeScript project with Tailwind
 As a developer, I need the reducer, types, and Context provider in place so subsequent stories can dispatch actions without rebuilding state infrastructure.
 
 **AC:**
-- `src/state/types.ts` defines `Todo`, `LoadStatus`, `DeletedRecord`, `AppState`, and the discriminated union of all action types per `architecture.md` §3
+- `src/state/types.ts` defines `Todo`, `LoadStatus`, `DeletedRecord`, `AppState`, and the discriminated union of all action types per `architecture.md` §4
 - `src/state/todosReducer.ts` implements the reducer; every action is handled (even if the matching UI doesn't exist yet — early stub returns are fine)
 - `src/state/TodosContext.tsx` exports a `TodosProvider` component and a `useTodos()` hook
 - `useTodos()` returns `{ state, dispatch }` and throws clearly if called outside a provider
@@ -45,7 +45,7 @@ As a developer, I need the reducer, types, and Context provider in place so subs
 - The provider runs the initial-load effect on mount: dispatches `INIT_LOAD_START`, awaits the loader, dispatches success or failure
 - No UI implications yet — this story is invisible from the user's perspective
 
-**Refs:** `architecture.md` §3, §5; `component-inventory.md` §3.2
+**Refs:** `architecture.md` §4, §5; `component-inventory.md` §3.2
 
 **Design decisions:**
 - Reducer pattern chosen over plain useState because the undo behaviour and the four-state initial-load flow require coordinated state changes that a single reducer makes auditable.
