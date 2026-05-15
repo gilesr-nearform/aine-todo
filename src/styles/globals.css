@@ -148,8 +148,25 @@
    *   gray-400 (muted icon, border)  ~2.1:1  decorative UI element
    *   gray-300 (subtle divider)      ~1.6:1  decorative
    */
-  --gieds-color-neutral-white: var(--gieds-color-emerald-900);
-  --gieds-color-base-white: var(--gieds-color-emerald-900);
+  /*
+   * Gov.ie's `--gieds-color-neutral-white` (and its alias `base-white`) is
+   * dual-purpose: it's a SURFACE colour (page bg, modal popup, layered cards
+   * via `surface-system-neutral-default`) AND a TEXT/ICON colour
+   * (`text-tone-primary-fill-default` — the white text on the primary green
+   * button — resolves to neutral-white, as do every `icon-tone-*-fill-*`
+   * and every `text-tone-light-*` variant).
+   *
+   * An earlier iteration remapped neutral-white → emerald-900 directly to
+   * flip the surface use. That also flipped every "white text on dark fill"
+   * use case — most visibly the primary destructive button (Delete '...',
+   * Clear completed, Delete list) rendered dark-text-on-dark-fill and
+   * failed WCAG contrast outright.
+   *
+   * Override only the surface tokens that genuinely need flipping. The
+   * text-tone / icon-tone tokens that resolve to neutral-white stay white,
+   * so primary filled buttons keep their readable white text.
+   */
+  --gieds-color-surface-system-neutral-default: var(--gieds-color-emerald-900);
 
   --gieds-color-gray-50: #003630;   /* page surface (= emerald-900) */
   --gieds-color-gray-100: #00433c;  /* slightly elevated surface */
@@ -184,7 +201,7 @@
  * stay light intentionally (used on green header chrome).
  */
 [data-theme='govie-dark'] .bg-white {
-  background-color: var(--gieds-color-neutral-white);
+  background-color: var(--gieds-color-surface-system-neutral-default);
 }
 
 /*
