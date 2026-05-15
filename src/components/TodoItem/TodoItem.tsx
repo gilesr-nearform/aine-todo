@@ -15,6 +15,11 @@ interface TodoItemProps {
   index: number;
   total: number;
   reorderDisabled?: boolean;
+  // Set by `TodoList` when this row has just been ticked and auto-hide is
+  // active. While true, the row stays in the DOM and runs the
+  // `todo-row-exit` animation defined in `globals.css`. The parent will
+  // filter it out once the animation completes.
+  exiting?: boolean;
 }
 
 export function TodoItem({
@@ -22,6 +27,7 @@ export function TodoItem({
   index,
   total,
   reorderDisabled = false,
+  exiting = false,
 }: TodoItemProps) {
   const { state, dispatch } = useTodos();
   const { t, locale } = useI18n();
@@ -64,7 +70,11 @@ export function TodoItem({
 
   return (
     <li
-      className="todo-row-enter group flex flex-col gap-1 border-b border-gray-200 py-3 last:border-b-0"
+      className={
+        'todo-row-enter group flex flex-col gap-1 border-b border-gray-200 py-3 last:border-b-0' +
+        (exiting ? ' todo-row-exit' : '')
+      }
+      aria-hidden={exiting ? true : undefined}
       onKeyDown={handleKeyDown}
     >
       <div className="flex items-start gap-3">

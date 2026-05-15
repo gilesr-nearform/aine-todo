@@ -3,12 +3,20 @@ import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 
 import { useT } from '../../i18n/I18nContext';
 import { useTodos } from '../../state/TodosContext';
-import type { Filters, ListId, SmartView, Todo } from '../../state/types';
+import type { Filters, ListId, SmartView, Todo, TodoId } from '../../state/types';
 import { countCompleted } from '../../utils/todoCounts';
 import { ConfirmModal } from '../ConfirmModal/ConfirmModal';
 import { ListControls } from '../ListControls/ListControls';
 import { ListSummary } from '../ListSummary/ListSummary';
 import { TodoItem } from '../TodoItem/TodoItem';
+
+/*
+ * How long a just-ticked row stays in the visible list before being filtered
+ * out, when auto-hide is active. Must match the `todo-row-exit` animation
+ * duration in globals.css so the row finishes its fade-and-collapse before
+ * the parent's filter removes it.
+ */
+const EXIT_HOLD_MS = 500;
 
 function matchesSearch(todo: Todo, filters: Filters): boolean {
   const query = filters.search.trim().toLowerCase();
@@ -64,9 +72,68 @@ export function TodoList() {
   const completionFilterActive =
     !isCompletedSmartView && !state.filters.showCompleted;
 
+  // Track rows that have just been ticked and should play the exit animation
+  // before being filtered out. The filter below keeps them in `visibleTodos`
+  // while their id is in this set; the effect below adds and removes them.
+  const [exitingIds, setExitingIds] = useState<ReadonlySet<TodoId>>(
+    () => new Set(),
+  );
+  const completedSnapshotRef = useRef<ReadonlySet<TodoId>>(new Set());
+
+  useEffect(() => {
+    if (!completionFilterActive) {
+      // Showing completed (or in the Completed smart view) — no rows should
+      // be in exit state. Reset so toggling the filter back on doesn't
+      // resurrect stale entries.
+      if (exitingIds.size > 0) setExitingIds(new Set());
+      completedSnapshotRef.current = new Set(
+        state.todos.filter((tt) => tt.completed).map((tt) => tt.id),
+      );
+      return;
+    }
+
+    const previouslyCompleted = completedSnapshotRef.current;
+    const justCompleted: TodoId[] = [];
+    for (const todo of state.todos) {
+      if (todo.completed && !previouslyCompleted.has(todo.id)) {
+        justCompleted.push(todo.id);
+      }
+    }
+
+    if (justCompleted.length > 0) {
+      setExitingIds((prev) => {
+        const next = new Set(prev);
+        for (const id of justCompleted) next.add(id);
+        return next;
+      });
+      const timers = justCompleted.map((id) =>
+        window.setTimeout(() => {
+          setExitingIds((prev) => {
+            if (!prev.has(id)) return prev;
+            const next = new Set(prev);
+            next.delete(id);
+            return next;
+          });
+        }, EXIT_HOLD_MS),
+      );
+      completedSnapshotRef.current = new Set(
+        state.todos.filter((tt) => tt.completed).map((tt) => tt.id),
+      );
+      return () => {
+        for (const timer of timers) window.clearTimeout(timer);
+      };
+    }
+
+    completedSnapshotRef.current = new Set(
+      state.todos.filter((tt) => tt.completed).map((tt) => tt.id),
+    );
+  }, [state.todos, completionFilterActive, exitingIds.size]);
+
   const visibleTodos = inScopeTodos.filter((tt) => {
     if (!matchesSearch(tt, state.filters)) return false;
-    if (completionFilterActive && tt.completed) return false;
+    if (completionFilterActive && tt.completed && !exitingIds.has(tt.id)) {
+      return false;
+    }
     return true;
   });
 
@@ -175,6 +242,7 @@ export function TodoList() {
               // the reducer skips hidden neighbours. Search is the only
               // filter that genuinely scrambles the order space.
               reorderDisabled={searchActive || isCompletedSmartView}
+              exiting={exitingIds.has(todo.id)}
             />
           ))}
         </ul>

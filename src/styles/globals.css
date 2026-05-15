@@ -49,14 +49,65 @@
   }
 }
 
+/*
+ * Tick-then-disappear exit when a task is completed and auto-hide is on.
+ * The first 40% of the timeline holds the row fully visible so gov.ie's
+ * Checkbox component has time to render the tick. The remaining 60% fades
+ * the row, collapses its vertical space via max-height/padding/border, and
+ * pulls the layout closed so neighbouring rows can slide up.
+ *
+ * `max-height` is capped at 320px (well above the tallest realistic row,
+ * including a wrapped description + 2-line notes preview). Rows shorter
+ * than that collapse cleanly because the animation also drives padding
+ * and border-bottom-width to zero in lock-step with opacity.
+ */
+@keyframes todo-row-exit {
+  0% {
+    opacity: 1;
+    max-height: 320px;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom-width: 1px;
+  }
+  40% {
+    opacity: 1;
+    max-height: 320px;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom-width: 1px;
+  }
+  100% {
+    opacity: 0;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-bottom-width: 0;
+  }
+}
+
 @layer components {
   .todo-row-enter {
     animation: todo-row-enter 180ms ease-out both;
   }
 
+  .todo-row-exit {
+    animation: todo-row-exit 500ms ease-in forwards;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .todo-row-enter {
       animation: none;
+    }
+
+    /* Honour the OS preference: no animation, no artificial hold. The
+     * parent still holds the row in `exitingIds` for the timeout window
+     * (so the dispatch / filter timing stays consistent across users),
+     * but the row hides instantly. */
+    .todo-row-exit {
+      animation: none;
+      display: none;
     }
   }
 }
