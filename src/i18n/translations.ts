@@ -83,6 +83,9 @@ const en = {
   'todo.moveDown': "Move '{description}' down",
   'todo.createdAtTime': 'added at {time}',
   'todo.createdAtDate': 'added on {date}',
+  'todo.confirmDeleteTitle': 'Delete this task?',
+  'todo.confirmDelete':
+    "Delete '{description}'? You can undo this immediately afterwards.",
 
   // Inline editor
   'editor.description': 'Description',
@@ -175,6 +178,9 @@ const ga: Record<Key, string> = {
   'todo.moveDown': "Bog '{description}' síos",
   'todo.createdAtTime': 'curtha leis ag {time}',
   'todo.createdAtDate': 'curtha leis ar {date}',
+  'todo.confirmDeleteTitle': 'An scriosfar an tasc seo?',
+  'todo.confirmDelete':
+    "An scriosfar '{description}'? Is féidir é seo a chealú láithreach ina dhiaidh sin.",
 
   // Inline editor
   'editor.description': 'Cur síos',

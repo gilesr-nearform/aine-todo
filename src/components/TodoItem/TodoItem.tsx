@@ -1,10 +1,11 @@
 import { Icon, IconButton, InputCheckbox } from '@ogcio/design-system-react';
-import { useId, type KeyboardEvent } from 'react';
+import { useId, useState, type KeyboardEvent } from 'react';
 
 import { useI18n } from '../../i18n/I18nContext';
 import { useTodos } from '../../state/TodosContext';
 import type { Todo } from '../../state/types';
 import { describeCreatedAt } from '../../utils/formatTimestamp';
+import { ConfirmModal } from '../ConfirmModal/ConfirmModal';
 import { TodoDeleteAction } from '../TodoDeleteAction/TodoDeleteAction';
 import { TodoEditor } from '../TodoEditor/TodoEditor';
 import { TodoReorderActions } from '../TodoReorderActions/TodoReorderActions';
@@ -26,6 +27,16 @@ export function TodoItem({
   const { t, locale } = useI18n();
   const checkboxId = useId();
   const isEditing = state.editingId === todo.id;
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+
+  function requestDelete() {
+    setConfirmDeleteOpen(true);
+  }
+
+  function confirmDelete() {
+    setConfirmDeleteOpen(false);
+    dispatch({ type: 'DELETE_TODO', payload: { id: todo.id } });
+  }
 
   function handleKeyDown(event: KeyboardEvent<HTMLLIElement>) {
     if (isEditing) return;
@@ -33,14 +44,16 @@ export function TodoItem({
     const target = event.target as HTMLElement;
     const tag = target.tagName;
     if (tag === 'INPUT' || tag === 'TEXTAREA') {
+      // Inside an input or textarea, Delete/Backspace edits the field. Only the
+      // completion checkbox (a non-text input) should trigger row delete.
       if (tag === 'INPUT' && (target as HTMLInputElement).type === 'checkbox') {
         event.preventDefault();
-        dispatch({ type: 'DELETE_TODO', payload: { id: todo.id } });
+        requestDelete();
       }
       return;
     }
     event.preventDefault();
-    dispatch({ type: 'DELETE_TODO', payload: { id: todo.id } });
+    requestDelete();
   }
 
   const createdAt = describeCreatedAt(todo.createdAt, locale);
@@ -100,11 +113,22 @@ export function TodoItem({
               total={total}
               disabled={reorderDisabled}
             />
-            <TodoDeleteAction id={todo.id} description={todo.description} />
+            <TodoDeleteAction
+              description={todo.description}
+              onDelete={requestDelete}
+            />
           </div>
         ) : null}
       </div>
       {isEditing ? <TodoEditor todo={todo} /> : null}
+      <ConfirmModal
+        isOpen={confirmDeleteOpen}
+        title={t('todo.confirmDeleteTitle')}
+        body={t('todo.confirmDelete', { description: todo.description })}
+        confirmLabel={t('todo.delete', { description: todo.description })}
+        onConfirm={confirmDelete}
+        onCancel={() => setConfirmDeleteOpen(false)}
+      />
     </li>
   );
 }
