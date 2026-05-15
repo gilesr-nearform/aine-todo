@@ -20,12 +20,6 @@ export interface Todo {
   notes?: string;
 }
 
-export interface DeletedRecord {
-  todo: Todo;
-  originalIndex: number;
-  expiresAt: number;
-}
-
 export interface Filters {
   search: string;
   showCompleted: boolean;
@@ -37,7 +31,6 @@ export interface AppState {
   todos: Todo[];
   activeListId: ListId | null;
   activeSmartView: SmartView;
-  recentlyDeleted: DeletedRecord[];
   filters: Filters;
   editingId: TodoId | null;
 }
@@ -59,8 +52,6 @@ export type Action =
   | { type: 'CREATE_TODO'; payload: { description: string } }
   | { type: 'TOGGLE_COMPLETE'; payload: { id: TodoId } }
   | { type: 'DELETE_TODO'; payload: { id: TodoId } }
-  | { type: 'UNDO_DELETE'; payload: { id: TodoId } }
-  | { type: 'EXPIRE_DELETED'; payload: { id: TodoId } }
   | {
       type: 'REORDER_TODO';
       payload: { id: TodoId; direction: 'up' | 'down' };
@@ -91,7 +82,6 @@ export const initialState: AppState = {
   todos: [],
   activeListId: null,
   activeSmartView: 'all',
-  recentlyDeleted: [],
   filters: defaultFilters,
   editingId: null,
 };

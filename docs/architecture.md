@@ -16,7 +16,7 @@
 | UI library | **React 18+** | Required by `@ogcio/design-system-react` |
 | Language | **TypeScript** (strict mode) | PRD requires production-feel polish; strict types catch the bugs that "vibe coding" misses |
 | Styling | **Tailwind CSS** + **`@ogcio/design-system-tailwind`** + **`@ogcio/theme-govie`** | Tailwind preset bound to gov.ie tokens; theme package applies the govie skin |
-| Component library | **`@ogcio/design-system-react`** | Pre-built, accessible components from the gov.ie design system. Custom components only where the library has gaps (swipe-to-delete, undo toast). |
+| Component library | **`@ogcio/design-system-react`** | Pre-built, accessible components from the gov.ie design system. Custom components only where the library has gaps (`ConfirmModal` wrapper, `TodoEditor` row, drawer composition). |
 | Tokens | **`@ogcio/design-system-tokens`** | Source of truth for colours, spacing, type, etc. Consumed via the Tailwind preset; no token values are duplicated in our code. |
 | Fonts | **`@fontsource/lato`** (gov.ie body font, self-hosted) + **`material-symbols`** (Material Symbols Outlined, self-hosted) | Gov.ie's `Icon` component renders icons via `<span class="material-symbols-outlined">` font ligatures, but the design system doesn't ship the font itself. We self-host the Material Symbols Outlined woff2 alongside Lato. See `brief.md` §9. |
 | Icons | **Gov.ie `Icon` component** (curated set in `@ogcio/design-system-react`) with **the full Material Symbols Outlined catalogue available at runtime** via the font fallback. We narrow casts in one place per use site (e.g. `ALL_TASKS_ICON` in `Sidebar.tsx`) so each escape outside the curated set is auditable. No Lucide. |
@@ -59,8 +59,7 @@ aine-todo/
 │   │   ├── TodoDeleteAction/   # delete icon button per row
 │   │   ├── ListSummary/        # x of y completed + clear-completed + hide/show
 │   │   ├── ListControls/       # search + filter affordances
-│   │   ├── ConfirmModal/       # shared confirm dialog (clear-completed, delete-list)
-│   │   ├── UndoToast/          # destructive-action undo with countdown
+│   │   ├── ConfirmModal/       # shared confirm dialog (clear-completed, delete-list, delete-todo)
 │   │   ├── EmptyState/
 │   │   ├── LoadingState/
 │   │   └── ErrorState/
@@ -77,7 +76,7 @@ aine-todo/
 │   ├── mocks/
 │   │   ├── initialLoad.ts      # simulated initial-fetch with delay + 10% failure
 │   │   └── devTriggers.ts      # window.__forceError + window.__instant
-│   ├── hooks/                  # useMediaQuery, useUndoTimer
+│   ├── hooks/                  # useMediaQuery
 │   ├── utils/                  # formatters, todoCounts, etc.
 │   ├── styles/
 │   │   └── globals.css         # gov.ie theme imports + Tailwind + Material Symbols + dark overrides
@@ -194,16 +193,11 @@ interface AppState {
     search: string;                     // free-text search, not persisted
     showCompleted: boolean;             // persisted; defaults to false post-Epic-11
   };
-  recentlyDeleted: DeletedRecord[];     // in-memory only; powers undo
-  editingTodoId: TodoId | null;         // inline editor target
-}
-
-interface DeletedRecord {
-  todo: Todo;
-  originalIndex: number;                // restores to its prior position on undo
-  expiresAt: number;                    // epoch ms; toast disappears after this
+  editingId: TodoId | null;             // inline editor target
 }
 ```
+
+The undo flow (`recentlyDeleted`, `DeletedRecord`) was removed Day 1; per-task delete is now guarded by `ConfirmModal` instead of a 4-second restore window. See `brief.md` §9.
 
 Language and theme live in their own Contexts and `localStorage` keys (`listlens:v1:lang`, `listlens:v1:theme`) — presentation rather than domain. See `src/i18n/I18nContext.tsx` and `src/theme/ThemeContext.tsx`.
 
@@ -219,9 +213,7 @@ The reducer handles exactly these actions. Adding a new one is a decision-log en
 | `INIT_LOAD_RETRY` | — | Equivalent to `INIT_LOAD_START`; triggers the loader again |
 | `CREATE_TODO` | `{ description: string }` | Validates, generates id + timestamp, **appends** to `todos` |
 | `TOGGLE_COMPLETE` | `{ id: TodoId }` | Flips `completed` on the matching todo |
-| `DELETE_TODO` | `{ id: TodoId }` | Removes the todo from `todos`, pushes a `DeletedRecord` onto `recentlyDeleted` |
-| `UNDO_DELETE` | `{ id: TodoId }` | Restores the todo from `recentlyDeleted` to its `originalIndex` in `todos` |
-| `EXPIRE_DELETED` | `{ id: TodoId }` | Removes a `DeletedRecord` from `recentlyDeleted` (after the toast's undo window closes) |
+| `DELETE_TODO` | `{ id: TodoId }` | Removes the todo from `todos`. Surfaced behind a `ConfirmModal` (no undo — see `brief.md` §9). |
 | `REORDER_TODO` | `{ id: TodoId, direction: 'up' \| 'down' }` | Swaps the todo with its nearest **visible** same-list neighbour in `todos`. Skips both other-list rows and hidden-completed rows (when `showCompleted` is false). No-op at the visible boundary. Added in Epic 06; refined in Epic 11 — see `brief.md` §9. |
 | `UPDATE_TODO` | `{ id: TodoId, description: string, notes?: string }` | Updates description and notes for a single todo. Trims both. No-op if trimmed description is empty. Added in Epic 07. |
 | `START_EDIT` / `STOP_EDIT` | `{ id: TodoId }` / — | Opens / closes the inline editor for a todo. Added in Epic 07. |
@@ -234,7 +226,7 @@ The reducer handles exactly these actions. Adding a new one is a decision-log en
 | `SET_ACTIVE_LIST` | `{ id: ListId \| null }` | Sets the active list. `null` selects a smart view (per `activeSmartView`). Added in Epic 08. |
 | `CLEAR_COMPLETED` | `{ listId: ListId \| null }` | Removes every completed todo in the given list. `null` clears completed across all lists. Surfaced behind a `ConfirmModal`, no undo. Added in Epic 09 (rolled into Epic 08's spec). |
 
-**Removed actions:** `TOGGLE_FLAG` and `SET_FLAGGED_ONLY` (Epic 07) were deleted in Epic 11 along with the entire flag feature surface (Todo.flagged field, FlagIcon component, amber border, flagged-only filter button, related translation keys). See `docs/stories/11-completion-flow-tightening.md` and `brief.md` §9.
+**Removed actions:** `TOGGLE_FLAG` and `SET_FLAGGED_ONLY` (Epic 07) were deleted in Epic 11 along with the entire flag feature surface (Todo.flagged field, FlagIcon component, amber border, flagged-only filter button, related translation keys). See `docs/stories/11-completion-flow-tightening.md` and `brief.md` §9. `UNDO_DELETE` and `EXPIRE_DELETED` (Epic 03) were deleted Day 1 when the undo flow was replaced by a per-task confirm modal — see `brief.md` §9.
 
 ### 4.3 Why a reducer (vs. plain useState)
 
@@ -242,7 +234,7 @@ Three reasons, in order of importance:
 
 1. **Specs map cleanly to actions.** A story's acceptance criteria translate directly to "given state X, dispatching action Y produces state Z." That's the SDD value prop in action.
 2. **State transitions are auditable.** Every change to the todos goes through one function; you can read it top-to-bottom and know everything that can happen.
-3. **Undo is non-trivial.** Restoring a deleted item to its original position alongside other state changes is the kind of thing useState-with-callbacks makes messy. A reducer keeps it clean.
+3. **Multi-list bookkeeping is non-trivial.** Operations like Delete-list (cascade-remove todos), Clear-completed (scoped by list or "all"), and reordering inside a smart-view (skipping hidden-completed siblings) are the kind of thing useState-with-callbacks makes messy. A reducer keeps it clean.
 
 ### 4.4 Why Context (vs. prop drilling or a state library)
 
@@ -268,12 +260,12 @@ Prop drilling through 4–5 levels of components would be tedious and visually n
 2. Reducer flips `completed`
 3. UI re-renders the item with the completion visual treatment
 
-### 5.4 Delete + undo
-1. User triggers delete (swipe-and-tap on mobile, hover-and-click on desktop, focus-and-Delete-key on keyboard)
-2. `DELETE_TODO` dispatched; item removed, `DeletedRecord` pushed with 4000ms expiry
-3. `UndoToastContainer` reads `recentlyDeleted`, renders an `UndoToast` for each entry
-4. After expiry, `EXPIRE_DELETED` removes the record; toast unmounts
-5. If user clicks Undo before expiry, `UNDO_DELETE` restores to original index
+### 5.4 Delete
+1. User triggers delete (hover-and-click on desktop, focus-and-Delete-key on keyboard) on a single row
+2. `TodoItem` opens its `ConfirmModal` with the body "Delete '{description}'? This can't be undone."
+3. On confirm, `DELETE_TODO` is dispatched; reducer removes the todo from `todos`. If the todo was being edited, `editingId` is cleared.
+4. If the row was already completed and auto-hide-completed is active, the visible list was already filtered; otherwise `TodoList`'s exit animation (`todo-row-exit` keyframes — 500ms hold + collapse) handled the just-completed case earlier. Delete itself simply unmounts the row.
+5. No undo: the modal is the single safety net. See `brief.md` §9 for the rationale.
 
 ## 6. Mock data system
 
@@ -308,7 +300,7 @@ Required for v1. Originally implemented in Story 1.4 against a single `listlens:
    - `listlens:v1:lang` — `'en' | 'ga'`.
    - `listlens:v1:theme` — `'light' | 'dark'`.
 2. **Graceful degradation.** Every read and write is wrapped in `try`/`catch`. Parse failures, quota-exceeded errors, and missing entries log a console warning and fall through to the empty / default state. The user sees the empty state, never an error caused by storage.
-3. **Don't persist what shouldn't survive a session.** `recentlyDeleted`, `status`, `editingTodoId`, and `filters.search` are in-memory only. Undoing a delete from yesterday, restoring a load-error state, or keeping yesterday's search query open have no sensible meaning.
+3. **Don't persist what shouldn't survive a session.** `status`, `editingId`, and `filters.search` are in-memory only. Restoring a load-error state on next mount, or keeping yesterday's search query open, have no sensible meaning.
 
 ### 7.1 Read path
 
@@ -349,7 +341,6 @@ Using `@ogcio/design-system-react` gives us a strong starting position because t
 - Visible focus indicators on every interactive element (gov.ie tokens supply the focus-ring values)
 - Form input has an associated `<label>` (gov.ie `Input` provides this; custom code must too)
 - Completion toggle is a real checkbox semantically — use gov.ie `Checkbox` if available
-- The undo toast announces itself via `role="status"` or `aria-live="polite"`
 - The error state is announced via `role="alert"`
 - Keyboard navigation: tab order matches visual order; focused row + Delete/Backspace deletes
 - No drag-and-drop required for any action (per WCAG 2.5.7)

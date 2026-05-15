@@ -44,7 +44,7 @@ All colours, type, spacing, radius, motion and breakpoints come from `@ogcio/des
 Two areas where we'll add to the design system, not override it:
 
 - **Skeleton rows for the loading state.** If the design system has a skeleton/placeholder component, we use it. If not, we'll compose one using gov.ie tokens (neutral surface colour, the system's border radius, a subtle shimmer respecting `prefers-reduced-motion`). Decision-log entry to be added on day 1 once verified.
-- **Undo toast.** Highly unlikely to be in a government design system (toasts are a contested pattern). We'll build a custom component using gov.ie tokens for surface colour, text colour, shadow, and border radius. The "Undo" button inside the toast uses the gov.ie `Button` component directly.
+- **Confirm modal.** Used for every destructive action (Clear completed, Delete list, Delete task). Gov.ie ships `ModalWrapper`, but no opinionated confirm-dialog wrapper, so we layer a thin `ConfirmModal` over it.
 
 Anything else that feels like it needs a custom token is a code smell — re-read this document and the gov.ie docs first.
 
@@ -76,10 +76,8 @@ For each component in `component-inventory.md`, we identify whether to use a gov
 | `<LoadingState>` | Custom | Skeleton rows composed from gov.ie tokens. Gov.ie has no skeleton primitive as of build. |
 | `<ErrorState>` | Custom | Uses gov.ie token styling; `role="alert"` on the wrapper. Gov.ie has no `Alert` primitive that fits this surface. |
 | Retry button (in `<ErrorState>`) | **Gov.ie `Button`** (secondary variant) | |
-| `<UndoToast>` and container | Custom | Gov.ie tokens throughout; countdown bar is a CSS animation respecting `prefers-reduced-motion` |
-| "Undo" button (in `<UndoToast>`) | **Gov.ie `Button`** (flat variant) | |
 
-**Day-1 verification:** completed. Gov.ie shipped Input, Button, Checkbox, Icon, IconButton, ModalWrapper, HeaderNext, SideNav, and Tooltip used in v1. Skeleton and Toast / Alert were absent and live as custom components above.
+**Day-1 verification:** completed. Gov.ie shipped Input, Button, Checkbox, Icon, IconButton, ModalWrapper, HeaderNext, SideNav, and Tooltip used in v1. Skeleton and Alert were absent and live as custom components above. The Day-0 plan also called for a custom `UndoToast`; it was built in Epic 03 and then **removed Day 1** when per-task delete picked up a `ConfirmModal` — see `brief.md` §9.
 
 ---
 
@@ -123,7 +121,7 @@ Gov.ie has a strong plain-English standard. We follow it.
 | Plain | "Add a task" — not "Compose a new entry" |
 | Direct | "Couldn't load your tasks." — not "Oh no, something went wrong!" |
 | Sentence case | "Nothing to do." — not "Nothing To Do." |
-| Functional | Buttons describe the action: "Try again", "Undo", "Add" |
+| Functional | Buttons describe the action: "Try again", "Delete", "Add" |
 | Unapologetic | The app doesn't apologise for its limits; it states what is |
 | Emoji-free | None. Anywhere. |
 | Exclamation-free | None. Anywhere. |
@@ -142,7 +140,9 @@ Use these strings as-is unless changed via a decision-log entry. Where the gov.i
 | Error state heading | `Couldn't load your tasks.` |
 | Error state body | `Something went wrong on our side.` |
 | Error retry button | `Try again` |
-| Undo toast | `Deleted: "{description}"` + button `Undo` |
+| Delete task confirm | Title `Delete this task?` · body `Delete '{description}'? This can't be undone.` · confirm `Delete '{description}'` |
+| Clear completed confirm | Title `Clear all completed tasks?` · body `This will permanently remove every completed task in this list.` · confirm `Clear completed` |
+| Delete list confirm | Title `Delete this list?` · body `Delete '{name}' and all of its tasks? This can't be undone.` · confirm `Delete list` |
 
 All user-facing copy is sourced from the translation dictionary in `src/i18n/translations.ts` rather than hardcoded — both English and Irish (Gaeilge) strings live there. The strings above are the English originals; the Gaeilge versions follow the same plain-English tone in Irish.
 
@@ -155,9 +155,9 @@ Note: we use "task" not "todo" in user-facing copy because it's the more natural
 The gov.ie design system likely defines motion tokens (durations, easing). Use those. For anything not covered:
 
 - Hover / focus transitions: ~150ms
-- Entry / exit animations (new todo appearing, deleted row collapsing): ~250ms
-- Modal / overlay transitions: ~300ms
-- Undo toast lifetime: 4000ms
+- Row-entry (`todo-row-enter`): 180ms ease-out
+- Row-exit on completion when auto-hide is on (`todo-row-exit`): 500ms ease-in (the first 40% holds the row visible long enough to see the tick land; the remaining 60% fades opacity and collapses `max-height`, padding, and the bottom border to zero). Under `prefers-reduced-motion: reduce` the row is hidden instantly via `display: none`.
+- Modal / overlay transitions: gov.ie `ModalWrapper` defaults
 
 All animation respects `prefers-reduced-motion: reduce` via a global override:
 
@@ -186,9 +186,9 @@ For our purposes:
 ## 9. Resolved questions (formerly open)
 
 - ~~**Skeleton component presence:** confirm in Storybook day 1.~~ **Resolved Day 1:** absent. Built custom skeleton rows using gov.ie tokens; entry above in §3.
-- ~~**Toast pattern presence:** confirm.~~ **Resolved Day 1:** absent. Built custom `UndoToast` with countdown bar using gov.ie tokens; entry above in §3.
+- ~~**Toast pattern presence:** confirm.~~ **Resolved Day 1:** absent in gov.ie. Built a custom `UndoToast` in Epic 03, then **removed it Day 1** in favour of a `ConfirmModal` for per-task delete (matching Clear completed and Delete list). See `brief.md` §9.
 - ~~**Reorder on completion:**~~ **Resolved Day 1 (Story 5.4 + Epic 11):** the Day-5 evaluation kept "stays in place" as the default for v1. Epic 11 then superseded the question entirely by auto-hiding completed tasks by default with a Show / Hide toggle and a separate "Completed" smart view.
-- ~~**Multi-toast stacking visual:**~~ **Resolved Day 1:** capped at 3 visible stacked toasts via `UndoToastContainer`; queued toasts dismiss in FIFO order. No gov.ie precedent contradicted by this.
+- ~~**Multi-toast stacking visual:**~~ **Resolved Day 1:** moot — the undo toast was removed (above), so multi-toast stacking no longer applies.
 
 ---
 

@@ -1,5 +1,7 @@
 # Epic 03 — Delete and Undo
 
+> **Status note (Day 1 — post-Epic-12):** the Undo half of this epic — `UndoToast` + `UndoToastContainer`, `useUndoTimer` hook, `recentlyDeleted` state slice, `UNDO_DELETE` and `EXPIRE_DELETED` actions, `DeletedRecord` type, and the `undo.deleted` / `undo.undo` translation keys — was removed Day 1 once per-task delete adopted the same `ConfirmModal` pattern as Clear completed and Delete list. The confirm-then-delete modal now stands as the single safety net. See **`brief.md` §9** for the full rationale. The Delete half (Story 3.1) is shipped as written; stories 3.2 and 3.3 are kept here as historical record but are not implemented in the current build. Do not regress to undo when iterating — the modal is the contract.
+>
 > The destructive action and its safety net. By the end of this epic, a user can remove a task and reverse the removal within a short window. The reducer already handles `DELETE_TODO`, `UNDO_DELETE`, and `EXPIRE_DELETED` (Story 1.2) — these stories wire the UI and timing around them.
 
 ---

@@ -84,8 +84,7 @@ const en = {
   'todo.createdAtTime': 'added at {time}',
   'todo.createdAtDate': 'added on {date}',
   'todo.confirmDeleteTitle': 'Delete this task?',
-  'todo.confirmDelete':
-    "Delete '{description}'? You can undo this immediately afterwards.",
+  'todo.confirmDelete': "Delete '{description}'? This can't be undone.",
 
   // Inline editor
   'editor.description': 'Description',
@@ -93,10 +92,6 @@ const en = {
   'editor.notesPlaceholder': 'Add a note',
   'editor.save': 'Save',
   'editor.cancel': 'Cancel',
-
-  // Undo toast
-  'undo.deleted': "Deleted '{description}'",
-  'undo.undo': 'Undo',
 
   // States
   'state.loadingAria': 'Loading your tasks',
@@ -180,7 +175,7 @@ const ga: Record<Key, string> = {
   'todo.createdAtDate': 'curtha leis ar {date}',
   'todo.confirmDeleteTitle': 'An scriosfar an tasc seo?',
   'todo.confirmDelete':
-    "An scriosfar '{description}'? Is féidir é seo a chealú láithreach ina dhiaidh sin.",
+    "An scriosfar '{description}'? Ní féidir é seo a chealú.",
 
   // Inline editor
   'editor.description': 'Cur síos',
@@ -188,10 +183,6 @@ const ga: Record<Key, string> = {
   'editor.notesPlaceholder': 'Cuir nóta leis',
   'editor.save': 'Sábháil',
   'editor.cancel': 'Cealaigh',
-
-  // Undo toast
-  'undo.deleted': "Scriosadh '{description}'",
-  'undo.undo': 'Cealaigh',
 
   // States
   'state.loadingAria': 'Do thascanna á luchtú',

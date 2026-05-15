@@ -84,8 +84,13 @@ export function TodoList() {
     if (!completionFilterActive) {
       // Showing completed (or in the Completed smart view) — no rows should
       // be in exit state. Reset so toggling the filter back on doesn't
-      // resurrect stale entries.
-      if (exitingIds.size > 0) setExitingIds(new Set());
+      // resurrect stale entries. Reset is intentionally an in-effect setState
+      // (it reacts to the mode flip, not to render) and is guarded by the size
+      // check below so the effect is idempotent.
+      if (exitingIds.size > 0) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional reset on filter-mode change
+        setExitingIds(new Set());
+      }
       completedSnapshotRef.current = new Set(
         state.todos.filter((tt) => tt.completed).map((tt) => tt.id),
       );

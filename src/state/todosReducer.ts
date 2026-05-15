@@ -1,7 +1,5 @@
 import type { Action, AppState, List, ListId, Todo } from './types';
 
-const UNDO_WINDOW_MS = 4000;
-
 function newTodo(description: string, listId: ListId): Todo {
   return {
     id: crypto.randomUUID(),
@@ -70,51 +68,13 @@ export function todosReducer(state: AppState, action: Action): AppState {
         ),
       };
 
-    case 'DELETE_TODO': {
-      const index = state.todos.findIndex((t) => t.id === action.payload.id);
-      if (index === -1) return state;
-      const target = state.todos[index];
-      if (!target) return state;
+    case 'DELETE_TODO':
       return {
         ...state,
         todos: state.todos.filter((t) => t.id !== action.payload.id),
-        recentlyDeleted: [
-          ...state.recentlyDeleted,
-          {
-            todo: target,
-            originalIndex: index,
-            expiresAt: Date.now() + UNDO_WINDOW_MS,
-          },
-        ],
-      };
-    }
-
-    case 'UNDO_DELETE': {
-      const record = state.recentlyDeleted.find(
-        (r) => r.todo.id === action.payload.id,
-      );
-      if (!record) return state;
-      const insertAt = Math.min(record.originalIndex, state.todos.length);
-      const nextTodos = [
-        ...state.todos.slice(0, insertAt),
-        record.todo,
-        ...state.todos.slice(insertAt),
-      ];
-      return {
-        ...state,
-        todos: nextTodos,
-        recentlyDeleted: state.recentlyDeleted.filter(
-          (r) => r.todo.id !== action.payload.id,
-        ),
-      };
-    }
-
-    case 'EXPIRE_DELETED':
-      return {
-        ...state,
-        recentlyDeleted: state.recentlyDeleted.filter(
-          (r) => r.todo.id !== action.payload.id,
-        ),
+        // Also clear editing state if we just deleted the row being edited.
+        editingId:
+          state.editingId === action.payload.id ? null : state.editingId,
       };
 
     case 'REORDER_TODO': {

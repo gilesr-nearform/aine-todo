@@ -18,12 +18,12 @@ A single index of every component in the build, what it's for, and where it sits
 | File and folder layout (where each component lives on disk)      | `[architecture.md](architecture.md)` §2 |
 | Custom vs gov.ie component decisions per component               | `[ux-spec.md](ux-spec.md)` §3           |
 | State management plumbing (`TodosProvider`, `useTodos`)          | `[architecture.md](architecture.md)` §4 |
-| Data flow per interaction (create / toggle / delete / undo)      | `[architecture.md](architecture.md)` §5 |
+| Data flow per interaction (create / toggle / delete)             | `[architecture.md](architecture.md)` §5 |
 | Mock data loader and dev triggers                                | `[architecture.md](architecture.md)` §6 |
 | Persistence (read / write to `localStorage`)                     | `[architecture.md](architecture.md)` §7 |
 | Accessibility baseline per component                             | `[architecture.md](architecture.md)` §8 |
 | Visual language tokens and component mapping table               | `[ux-spec.md](ux-spec.md)` §2, §3       |
-| Voice and tone applied per surface (empty / error / undo / etc.) | `[ux-spec.md](ux-spec.md)` §6           |
+| Voice and tone applied per surface (empty / error / confirm / etc.) | `[ux-spec.md](ux-spec.md)` §6        |
 | Motion (durations, easing, what animates)                        | `[ux-spec.md](ux-spec.md)` §7           |
 | Responsive behaviour (breakpoints, layout shifts)                | `[ux-spec.md](ux-spec.md)` §8           |
 
@@ -60,7 +60,6 @@ The full list lives in `[architecture.md](architecture.md)` §2 and the gov.ie-v
 
 **Cross-cutting:**
 - `TodoInputBar` — pinned task-creation bar (gov.ie `Input` + `Button`)
-- `UndoToast`, `UndoToastContainer` — destructive-action undo flow with countdown bar
 - `ConfirmModal` — shared confirm dialog (used by Clear completed and Delete list, Epic 09/08)
 - `EmptyState`, `LoadingState`, `ErrorState` — non-populated UI states
 
@@ -82,7 +81,7 @@ Layout rule: `AppShell` renders a full-viewport column — `Header` at the top, 
 
 ### 3.4 Input bar and list — referenced by Story 1.3
 
-Substantive spec: `[ux-spec.md](ux-spec.md)` §3 (component mapping); `[architecture.md](architecture.md)` §5.2 (create flow), §5.3 (toggle), §5.4 (delete + undo).
+Substantive spec: `[ux-spec.md](ux-spec.md)` §3 (component mapping); `[architecture.md](architecture.md)` §5.2 (create flow), §5.3 (toggle), §5.4 (delete).
 
 - `TodoInputBar` composes gov.ie `Input` + `Button`. In Story 1.3 it is rendered inert; wiring happens in Epic 2.
 - `TodoList` is a custom layout container; it reads nothing in Story 1.3 (renders nothing while `state.todos.length === 0`). Items are appended at the bottom on create (see `[architecture.md](architecture.md)` §5.2).
@@ -113,8 +112,8 @@ Substantive spec lives in `[architecture.md](architecture.md)` §8. Summary of t
 
 - Every interactive element is a real `<button>` or `<input>`, never a clickable `<div>` — applies to every custom component listed in §3.
 - `Checkbox` for completion uses gov.ie `Checkbox` semantics (real checkbox input under the hood).
-- `UndoToast` announces itself via `role="status"` / `aria-live="polite"`.
 - `ErrorState` announces via `role="alert"`.
+- `ConfirmModal` renders gov.ie's `ModalWrapper`, which handles the dialog ARIA semantics itself.
 - Keyboard navigation: tab order matches visual order; focused `TodoItem` + Delete/Backspace deletes (no drag-and-drop required, per WCAG 2.5.7).
 - Visible focus indicators on every interactive element, drawn from gov.ie tokens.
 
@@ -133,8 +132,7 @@ Interactive components covered:
 - `ListSummary` — Clear completed (flat button), Show / Hide completed (outline toggle button, `aria-pressed`)
 - `ListControls` — search field with clear button
 - `Header` — Gaeilge / English toggle button, theme toggle button
-- `UndoToast` — undo button
-- `ConfirmModal` — confirm and cancel buttons
+- `ConfirmModal` — confirm and cancel buttons (clear-completed, delete-list, delete-todo)
 - `ErrorState` — retry button
 - `EmptyState` — no interactive elements, included here only for completeness
 

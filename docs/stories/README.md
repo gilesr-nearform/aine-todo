@@ -18,7 +18,7 @@
 |---|---|---|
 | 01 — Foundation | `01-foundation.md` | Required — shipped |
 | 02 — Core Actions | `02-core-actions.md` | Required — shipped |
-| 03 — Delete & Undo | `03-delete-and-undo.md` | Required — shipped |
+| 03 — Delete (& Undo) | `03-delete-and-undo.md` | Required — delete shipped; undo half **removed Day 1** in favour of a per-task `ConfirmModal`. The story file is kept as historical record; see `brief.md` §9. |
 | 04 — UI States | `04-ui-states.md` | Required — shipped |
 | 05 — Polish | `05-polish.md` | Required — shipped (kept "completed stays in place" per Day-5 decision, later superseded by Epic 11) |
 | 06 — Reorder | `06-reorder.md` | Added Day 1 — scope expansion, shipped — see `brief.md` §9 |
@@ -32,11 +32,12 @@ Epic 09 was rolled into Epic 08 during the Day-1 multi-list pass (Clear-complete
 
 ## Build-order rule
 
-Foundation → Core → Delete & Undo → UI States → Polish. The polish epic (05) is the integration sweep across everything that came before; running it before then is pointless. Epics 06–12 layer features on top of the polished base.
+Foundation → Core → Delete → UI States → Polish. The polish epic (05) is the integration sweep across everything that came before; running it before then is pointless. Epics 06–12 layer features on top of the polished base.
 
 ## What changed since the original draft
 
 - **Photo-scan epic removed entirely.** Cut from v1 scope per the OGCIO-context pivot. Moved to v2 appendix in `docs/brief.md` §10.
 - **Day-1 scope expansions** added reorder, notes/filters, multiple lists, bilingual header + i18n, completion-flow tightening, and theme switcher. Each is a separate epic with its own story file; all are logged in `docs/brief.md` §9.
+- **Undo flow removed.** Epic 03's "Undo" half (`UndoToast`, `recentlyDeleted` state, `UNDO_DELETE` / `EXPIRE_DELETED` actions, `useUndoTimer` hook) was retired Day 1 — see `docs/brief.md` §9 for rationale. The per-task delete is now guarded by `ConfirmModal` instead.
 - **Flag feature removed** in Epic 11 (auto-hide-completed replaces the flag-then-filter pattern with a more direct "completed slides out of view" model). All flag-related state, components, translation keys, and stories sections are deprecated.
 - **Stories reference gov.ie design system components** where applicable. Most "build a checkbox" / "build a button" / "build an input" stories read "use the gov.ie component," dramatically simplifying implementation.
