@@ -161,7 +161,11 @@ export function Sidebar({ onNavigate }: SidebarProps) {
           type="button"
           onClick={themeToggle.toggle}
           aria-pressed={themeToggle.isDark}
-          className="flex w-full items-center gap-3 rounded-md border border-transparent px-3 py-2 text-left text-sm font-medium text-gray-800 transition-colors hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 dark:text-gray-200 dark:hover:bg-gray-200/40"
+          // Colours come from gov.ie's gray-* tokens, which we invert in dark
+          // mode (globals.css). Don't add dark: overrides here — dark:text-gray-200
+          // would resolve to the inverted #004d44 (dark emerald) and disappear
+          // against the sidebar background.
+          className="flex w-full items-center gap-3 rounded-md border border-transparent px-3 py-2 text-left text-sm font-medium text-gray-800 transition-colors hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
         >
           <span className="flex h-5 w-5 items-center justify-center text-current">
             <ThemeIcon isDark={themeToggle.isDark} />
