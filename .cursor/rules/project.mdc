@@ -32,7 +32,7 @@ If asked for something not covered in the docs, **ask for the spec first** rathe
 
 - Vite + React 18 + TypeScript (strict)
 - `@ogcio/design-system-react`, `@ogcio/design-system-tokens`, `@ogcio/design-system-tailwind`, `@ogcio/theme-govie`
-- `@fontsource/lato` (body font) + `material-symbols` (self-hosted Material Symbols Outlined for gov.ie's `Icon` API — gov.ie ships the icon-name API but not the font)
+- `material-symbols` (self-hosted Material Symbols Outlined for gov.ie's `Icon` API — gov.ie ships the icon-name API but not the font). Lato (body font) ships transitively via `@ogcio/theme-govie`, which bundles `@fontsource/lato`; we don't pin it directly.
 - Tailwind CSS with gov.ie preset (`darkMode: ['selector', '[data-theme="govie-dark"]']`)
 - React Context + useReducer for state, persisted to `localStorage`:
   - `listlens:v2:state` — lists, todos, activeListId, activeSmartView, showCompleted

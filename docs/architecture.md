@@ -13,12 +13,12 @@
 | Concern | Choice | Why |
 |---|---|---|
 | Build tool | **Vite** | Leaner than Next.js for a frontend-only SPA with mock data. The gov.ie design system has a working Vite example (`pnpm examples:vite` in their repo) so integration is well-trodden. |
-| UI library | **React 18+** | Required by `@ogcio/design-system-react` |
+| UI library | **React 19** | Required by `@ogcio/design-system-react` (peer dep accepts `react@^18 \|\| ^19`) |
 | Language | **TypeScript** (strict mode) | PRD requires production-feel polish; strict types catch the bugs that "vibe coding" misses |
 | Styling | **Tailwind CSS** + **`@ogcio/design-system-tailwind`** + **`@ogcio/theme-govie`** | Tailwind preset bound to gov.ie tokens; theme package applies the govie skin |
 | Component library | **`@ogcio/design-system-react`** | Pre-built, accessible components from the gov.ie design system. Custom components only where the library has gaps (`ConfirmModal` wrapper, `TodoEditor` row, drawer composition). |
 | Tokens | **`@ogcio/design-system-tokens`** | Source of truth for colours, spacing, type, etc. Consumed via the Tailwind preset; no token values are duplicated in our code. |
-| Fonts | **`@fontsource/lato`** (gov.ie body font, self-hosted) + **`material-symbols`** (Material Symbols Outlined, self-hosted) | Gov.ie's `Icon` component renders icons via `<span class="material-symbols-outlined">` font ligatures, but the design system doesn't ship the font itself. We self-host the Material Symbols Outlined woff2 alongside Lato. See `brief.md` §9. |
+| Fonts | **`material-symbols`** (self-hosted). Lato (gov.ie's body font) ships transitively via `@ogcio/theme-govie`, which bundles `@fontsource/lato` and serves the woff2 from the bundle — we don't pin Lato as a direct dep. | Gov.ie's `Icon` component renders icons via `<span class="material-symbols-outlined">` font ligatures, but the design system doesn't ship the font itself, so we self-host the Material Symbols Outlined woff2 via the `material-symbols` npm package. See `brief.md` §9. |
 | Icons | **Gov.ie `Icon` component** (curated set in `@ogcio/design-system-react`) with **the full Material Symbols Outlined catalogue available at runtime** via the font fallback. We narrow casts in one place per use site (e.g. `ALL_TASKS_ICON` in `Sidebar.tsx`) so each escape outside the curated set is auditable. No Lucide. |
 | State | **React Context + useReducer** | Single source of truth; explicit action types make state transitions testable and spec-able. No external state library. |
 | i18n | **Custom Context + dictionary** (English + Irish/Gaeilge); language preference persisted under `listlens:v1:lang`. No `i18next` dependency — ~80 strings doesn't justify it. See Epic 10 and `brief.md` §9. |
@@ -50,7 +50,7 @@ aine-todo/
 ├── src/
 │   ├── components/             # custom components only (gov.ie components imported directly)
 │   │   ├── AppShell/           # AppShell, Header (incl. bilingual gov.ie strip), GovieBranding, MainContent, ThemeToggle
-│   │   ├── Sidebar/            # desktop Sidebar + MobileNav drawer
+│   │   ├── Sidebar/            # Sidebar component (rendered in AppShell on desktop, inside DrawerBody on mobile via Header.tsx)
 │   │   ├── TodoList/           # list pane: header, summary, filter controls, items
 │   │   ├── TodoItem/
 │   │   ├── TodoEditor/         # inline edit (description + notes)
@@ -216,7 +216,7 @@ The reducer handles exactly these actions. Adding a new one is a decision-log en
 | `DELETE_TODO` | `{ id: TodoId }` | Removes the todo from `todos`. Surfaced behind a `ConfirmModal` (no undo — see `brief.md` §9). |
 | `REORDER_TODO` | `{ id: TodoId, direction: 'up' \| 'down' }` | Swaps the todo with its nearest **visible** same-list neighbour in `todos`. Skips both other-list rows and hidden-completed rows (when `showCompleted` is false). No-op at the visible boundary. Added in Epic 06; refined in Epic 11 — see `brief.md` §9. |
 | `UPDATE_TODO` | `{ id: TodoId, description: string, notes?: string }` | Updates description and notes for a single todo. Trims both. No-op if trimmed description is empty. Added in Epic 07. |
-| `START_EDIT` / `STOP_EDIT` | `{ id: TodoId }` / — | Opens / closes the inline editor for a todo. Added in Epic 07. |
+| `START_EDIT` / `CANCEL_EDIT` | `{ id: TodoId }` / — | Opens / closes the inline editor for a todo. Added in Epic 07. |
 | `SET_SEARCH` | `{ value: string }` | Updates `filters.search`. Not persisted. Added in Epic 07. |
 | `SET_SHOW_COMPLETED` | `{ value: boolean }` | Updates `filters.showCompleted`. Persisted post-Epic-11; defaults to `false`. |
 | `SET_SMART_VIEW` | `{ view: SmartView }` | Switches between the "All tasks" and "Completed" smart views. Implies `activeListId = null`. Added in Epic 11. |
@@ -390,4 +390,18 @@ Deployment is automatic: every push to `main` triggers `.github/workflows/deploy
 
 ## 12. Decision log
 
-Architecture-side decisions live alongside product and UX decisions in **`brief.md` §9**. Maintaining a single canonical decision log avoids three out-of-sync copies. The architecture-relevant Day-1 amendments (Tailwind v3 pin, `createTheme` usage, theme-package CSS paths, storage v1→v2 migration, Material Symbols self-hosting, theme override scope, deployment exception) are all there.
+Architecture-side decisions live alongside product and UX decisions in **`brief.md` §9** to avoid three out-of-sync copies. The architecture-relevant Day-1 amendments are indexed below — open `brief.md` §9 for the full rationale on each.
+
+| Decision | Rationale |
+|---|---|
+| Tailwind pinned to `^3.4` (gov.ie preset peer dep) | `brief.md` §9 (Day 1) |
+| `tailwind.config.ts` uses `theme: createTheme()`, not `presets: [preset]` | `brief.md` §9 (Day 1) |
+| `globals.css` imports `@ogcio/theme-govie/{light,dark}.css` + `@ogcio/design-system-react/styles.css` (no `tokens.css`) | `brief.md` §9 (Day 1) |
+| Storage schema v1→v2 migration on first read | `brief.md` §9 (Day 1, Epic 08) |
+| Material Symbols Outlined self-hosted via `material-symbols` (gov.ie `Icon` API depends on the font but doesn't ship it) | `brief.md` §9 (Day 1) |
+| Dark-mode override of gov.ie neutral / gray primitives only — brand + intent tokens untouched | `brief.md` §9 (Day 1, Epic 12) |
+| Bespoke `.list-action-btn` class for dark-mode list-pane button text colour | `brief.md` §9 (Day 1, Epic 12) |
+| GitHub Pages auto-deploy of `main` via Actions (scoped exception to "no deployment") | `brief.md` §9 (Day 1) |
+| Custom Context + dictionary for i18n; no `i18next` dependency | `brief.md` §9 (Day 1, Epic 10) |
+| Undo flow removed; per-task delete now guarded by `ConfirmModal` | `brief.md` §9 (Day 1) |
+| `MobileNav` wrapper component deleted; mobile drawer composed inline in `Header.tsx` | `brief.md` §9 (Day 1, theme-toggle-relocation entry) |

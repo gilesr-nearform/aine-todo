@@ -39,15 +39,14 @@ Every component in the build, grouped by area. For each, see the canonical doc c
 The full list lives in `[architecture.md](architecture.md)` §2 and the gov.ie-vs-custom decision table in `[ux-spec.md](ux-spec.md)` §3. As of Epic 12:
 
 **App-wide chrome:**
-- `AppShell` — full-viewport column: header at top, main content scrolling, input bar pinned at bottom
-- `Header` — the bilingual gov.ie strip (light) above the green service bar (`HeaderNext`), with the language toggle in the utility row and the theme toggle in the primary menu (Epic 10, Epic 12)
-- `GovieBranding` — the harp logo + "Rialtas na hÉireann / Government of Ireland" lock-up (Epic 10)
-- `MainContent` — owns the four-way state routing (see §3.5) and the sidebar / drawer composition
-- `ThemeToggle` — `useThemeToggle` hook + `ThemeIcon` (sun / moon) for the header (Epic 12)
+- `AppShell` — full-viewport column: gov.ie identity strip + green service bar + main content + pinned input bar. Custom layout; gov.ie components live inside.
+- `GovieBranding` — top identity strip carrying the Gaeilge ↔ English language toggle. The toggle is a custom `<button>` styled with gov.ie focus tokens, not gov.ie's `HeaderToolItemButton` — the strip is custom-composed and the tool-item pattern is meant for gov.ie's white-on-dark utility menu, which we don't use. (Epic 10)
+- `Header` — gov.ie `HeaderNext` (green default variant) carrying the harp (`LogoWhite`), the app title (`HeaderTitle`), and on `< md` a burger menu (`HeaderPrimaryMenu` + `HeaderMenuItemButton`) that opens the sidebar in a gov.ie `DrawerWrapper`. The drawer is composed inline here — there is no separate `MobileNav` component (see `[brief.md](brief.md)` §9, Day-1 theme-toggle-relocation entry).
+- `MainContent` — owns the four-way state routing (see §3.5).
+- `ThemeToggle` — exports `useThemeToggle` hook + `ThemeIcon` (sun / moon, inline SVGs). Consumed by `Sidebar`, which renders the toggle pinned to the sidebar footer. **Not** in the header — the relocation is logged in `[brief.md](brief.md)` §9. (Epic 12)
 
 **Sidebar / drawer (Epic 08):**
-- `Sidebar` — desktop sidebar: smart views ("All tasks", "Completed"), user lists, count badges, add-list form
-- `MobileNav` — mobile drawer with the same content, gated on a `useMediaQuery` breakpoint
+- `Sidebar` — smart views ("All tasks", "Completed"), user lists, count badges, add-list form, theme toggle pinned at the bottom. The same `Sidebar` component is rendered in two places — `<aside className="hidden md:flex">` in `AppShell` for desktop, and inside gov.ie's `DrawerBody` in `Header.tsx` for mobile. There is no separate `MobileNav` wrapper.
 
 **List pane:**
 - `TodoList` — composes the list header, summary, filter controls, and the list of items

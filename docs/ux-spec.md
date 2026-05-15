@@ -18,7 +18,7 @@ We operate under the Government Design Principles that the gov.ie design system 
 |---|---|
 | Start with user needs | The user need is "remember what I said I'd do today" — not "manage projects" |
 | Do less | The PRD is uncompromising about minimal scope; every cut is a feature |
-| Design with data | We'll learn the photo-scan and reorder questions from real use, not pre-decide them in v1 |
+| Design with data | The photo-scan question is held back to v2 rather than pre-decided here; in-build, the same principle is what surfaced Epic 11 (one day of real use turned the flag-then-filter pattern into auto-hide-completed) |
 | Make things simple | One screen, four actions, no settings |
 | Build accessible services | Using gov.ie components by default makes this nearly free; we maintain the standard for our custom components |
 
@@ -57,9 +57,9 @@ For each component in `component-inventory.md`, we identify whether to use a gov
 | Component | Source | Notes |
 |---|---|---|
 | `<App>`, `<AppShell>` | Custom (composition) | App-specific layout; uses gov.ie spacing / typography tokens |
-| `<Header>` (bilingual gov.ie strip) | **Gov.ie `HeaderNext`** + custom `GovieBranding` | Two-bar header: top utility strip carries "Rialtas na hÉireann / Government of Ireland" with the harp + Gaeilge / English toggle; lower green bar is gov.ie `HeaderNext` with app title + theme toggle in the primary menu. Builder is an OGCIO service designer; using gov.ie's real service header is an explicit choice — see `brief.md` §9 (Day-1 entries). |
-| Language toggle (Gaeilge / English) | **Gov.ie `HeaderToolItemButton`** | Bound to `useI18n()` (Epic 10). |
-| Theme toggle (light / dark) | **Gov.ie `HeaderPrimaryMenu` + `HeaderMenuItemButton`** | Sun / moon glyphs are inline SVGs; gov.ie's curated `IconId` set doesn't ship them and that was the minimum-footprint path (Epic 12). |
+| `<Header>` (bilingual gov.ie strip) | **Gov.ie `HeaderNext`** + custom `GovieBranding` | Two-bar header: top identity strip (`GovieBranding`) carries the Gaeilge / English language toggle; lower green bar is gov.ie `HeaderNext` carrying the harp (`LogoWhite`), app title, and on mobile a burger menu trigger. The theme toggle lives in the sidebar footer, **not** the header (Day-1 relocation, see `brief.md` §9). Builder is an OGCIO service designer; using gov.ie's real service header is an explicit choice — see `brief.md` §9 (Day-1 entries). |
+| Language toggle (Gaeilge / English) | Custom `<button>` over gov.ie focus tokens | Sits in the top identity strip (`GovieBranding.tsx`). Bound to `useI18n()`. Hand-rolled rather than `HeaderToolItemButton` — the strip is custom-composed and gov.ie's tool-item pattern is meant for the white-on-dark utility menu, which we don't use. (Epic 10) |
+| Theme toggle (light / dark) | Custom `<button>` (`useThemeToggle` hook + `ThemeIcon`) | Sits at the bottom of the sidebar, under the Add-list form. Originally placed in the header `HeaderPrimaryMenu`, relocated Day 1 to quieten the header — see `brief.md` §9. Sun / moon glyphs are inline SVGs; gov.ie's curated `IconId` set doesn't ship them. (Epic 12) |
 | Sidebar / mobile drawer | Custom (composes gov.ie `SideNav`, `SideNavItem`, `SideNavHeading`, `IconButton`) | Sidebar on `md+`, drawer below `md` via `useMediaQuery`. The original "Smart" heading was removed Day 1 to lift "All tasks" to the top of the rail (Epic 11). |
 | `<TodoInputBar>`, `<TodoInput>` | Custom (composition) over **gov.ie `Input` + `Button`** | |
 | `<TodoSubmitButton>` | **Gov.ie `Button`** (primary variant) | |

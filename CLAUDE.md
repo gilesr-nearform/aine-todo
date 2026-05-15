@@ -25,7 +25,7 @@
 
 - **Build:** Vite + React 18 + TypeScript (strict)
 - **Design system:** `@ogcio/design-system-react`, `@ogcio/design-system-tokens`, `@ogcio/design-system-tailwind`, `@ogcio/theme-govie`
-- **Fonts:** `@fontsource/lato` (gov.ie body font) + `material-symbols` (self-hosted Material Symbols Outlined font for gov.ie's `Icon` API — gov.ie ships the icon-name API but not the font, see `docs/brief.md` §9)
+- **Fonts:** `material-symbols` (self-hosted Material Symbols Outlined font for gov.ie's `Icon` API — gov.ie ships the icon-name API but not the font; see `docs/brief.md` §9). Lato (gov.ie's body font) ships transitively via `@ogcio/theme-govie`, which bundles `@fontsource/lato`; we don't pin it directly.
 - **Styling:** Tailwind CSS (gov.ie preset) + CSS variables from gov.ie tokens
 - **State:** React Context + useReducer, with `localStorage` persistence (`listlens:v2:state` for the lists+todos+view-state envelope; `listlens:v1:lang` for language; `listlens:v1:theme` for theme)
 - **i18n:** Custom lightweight Context-based dictionary (`src/i18n/`) — English + Irish (Gaeilge). No i18next dependency. See Epic 10.
